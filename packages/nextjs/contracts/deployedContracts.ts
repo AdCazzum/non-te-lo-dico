@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/helper/contract";
 const deployedContracts = {
   11155111: {
     FHEIPFSStorage: {
-      address: "0x0dacF49E290AbC1C7Be7aDCf75425EFEc2D4B2F2",
+      address: "0x896a6d6Bd3781E2C36Fe1a46c1d83A05f8EB0F2F",
       abi: [
         {
           anonymous: false,
@@ -104,6 +104,19 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [],
+          name: "getAllProviders",
+          outputs: [
+            {
+              internalType: "address[]",
+              name: "",
+              type: "address[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "string",
@@ -114,7 +127,7 @@ const deployedContracts = {
           name: "getEncryptedKey",
           outputs: [
             {
-              internalType: "euint256",
+              internalType: "euint128",
               name: "",
               type: "bytes32",
             },
@@ -133,7 +146,7 @@ const deployedContracts = {
           name: "getEncryptedPrice",
           outputs: [
             {
-              internalType: "euint256",
+              internalType: "euint128",
               name: "",
               type: "bytes32",
             },
@@ -178,6 +191,73 @@ const deployedContracts = {
             {
               internalType: "string[]",
               name: "",
+              type: "string[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getProviderCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getProviderStats",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "providerAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "fileCount",
+                  type: "uint256",
+                },
+                {
+                  internalType: "euint128",
+                  name: "totalPrice",
+                  type: "bytes32",
+                },
+              ],
+              internalType: "struct FHEIPFSStorage.ProviderStats[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_provider",
+              type: "address",
+            },
+          ],
+          name: "getProviderStatsByAddress",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "fileCount",
+              type: "uint256",
+            },
+            {
+              internalType: "string[]",
+              name: "cids",
               type: "string[]",
             },
           ],
@@ -241,7 +321,7 @@ const deployedContracts = {
               type: "string",
             },
             {
-              internalType: "externalEuint256",
+              internalType: "externalEuint128",
               name: "_encryptedKey",
               type: "bytes32",
             },
@@ -251,7 +331,7 @@ const deployedContracts = {
               type: "bytes",
             },
             {
-              internalType: "externalEuint256",
+              internalType: "externalEuint128",
               name: "_encryptedPrice",
               type: "bytes32",
             },
@@ -268,7 +348,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9440494,
+      deployedOnBlock: 9441291,
     },
   },
 } as const;

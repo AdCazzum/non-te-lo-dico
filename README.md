@@ -1,8 +1,8 @@
 # 🔐 non-te-lo-dico
 
-[![Sepolia](https://img.shields.io/badge/Sepolia-Deployed-success?logo=ethereum)](https://sepolia.etherscan.io/address/0x0dacF49E290AbC1C7Be7aDCf75425EFEc2D4B2F2)
-[![Contract](https://img.shields.io/badge/Contract-Verified-blue?logo=ethereum)](https://sepolia.etherscan.io/address/0x0dacF49E290AbC1C7Be7aDCf75425EFEc2D4B2F2#code)
-[![FHE](https://img.shields.io/badge/FHE-euint256-purple)](https://docs.zama.ai/)
+[![Sepolia](https://img.shields.io/badge/Sepolia-Deployed-success?logo=ethereum)](https://sepolia.etherscan.io/address/0x896a6d6Bd3781E2C36Fe1a46c1d83A05f8EB0F2F)
+[![Contract](https://img.shields.io/badge/Contract-Verified-blue?logo=ethereum)](https://sepolia.etherscan.io/address/0x896a6d6Bd3781E2C36Fe1a46c1d83A05f8EB0F2F#code)
+[![FHE](https://img.shields.io/badge/FHE-euint128-purple)](https://docs.zama.ai/)
 [![License](https://img.shields.io/badge/License-BSD--3--Clause--Clear-orange)](LICENSE)
 
 A decentralized application for uploading encrypted AI training datasets to IPFS and managing access permissions using Fully Homomorphic Encryption (FHE) on Ethereum.
@@ -26,6 +26,7 @@ This project demonstrates a privacy-preserving file storage system using:
 - **🔑 FHE Encryption**: Each file gets a unique encrypted ID that only authorized users can decrypt
 - **👥 Permission Management**: Grant or revoke access to specific Ethereum addresses
 - **🔍 File Retrieval**: Authorized users can view and decrypt file information
+- **📊 Provider Statistics**: View anonymous statistics about data providers
 - **🌐 Sepolia Testnet**: Deployed and ready to use on Ethereum testnet
 
 ## 📋 Prerequisites
@@ -51,15 +52,18 @@ For local development:
 ### 📜 Smart Contract Information
 
 **Deployment Information**
-- **Contract Address**: `0x0dacF49E290AbC1C7Be7aDCf75425EFEc2D4B2F2`
+- **Contract Address**: `0x896a6d6Bd3781E2C36Fe1a46c1d83A05f8EB0F2F`
 - **Network**: Sepolia Testnet (Chain ID: 11155111)
-- **Verified on Etherscan**: [View Contract](https://sepolia.etherscan.io/address/0x0dacF49E290AbC1C7Be7aDCf75425EFEc2D4B2F2#code)
+- **Verified on Etherscan**: [View Contract](https://sepolia.etherscan.io/address/0x896a6d6Bd3781E2C36Fe1a46c1d83A05f8EB0F2F#code)
 
 **Features**:
-- 🔐 Encrypted decryption keys using ZAMA FHE (`euint256`)
-- 💰 Encrypted dataset prices (`euint256`) - unlimited price range
+- 🔐 Encrypted decryption keys using ZAMA FHE (`euint128`)
+- 💰 Encrypted dataset prices (`euint128`)
 - 🔑 ACL-based access control
 - 📊 On-chain metadata storage
+- 👥 Provider statistics tracking
+- 🔍 Anonymous provider list with file counts
+- ➕ FHE arithmetic operations - on-chain encrypted price summation using `FHE.add()`
 
 ## 💻 Local Development
 
@@ -81,45 +85,42 @@ pnpm start
 
 The smart contract provides advanced encryption and privacy features:
 
-#### **euint256 Support**
-- Uses `euint256` for encrypted values
-- **Price Range**: Unlimited - supports any dataset price
-- **Future-Proof**: Maximum flexibility for complex arithmetic operations on encrypted values
+#### **euint128 Support**
+- Uses `euint128` for encrypted values (128-bit FHE integers)
+- **Price Range**: 0 to ~340 undecillion wei (more than enough for any practical use case)
+- **FHE Arithmetic**: Supports on-chain encrypted operations using `FHE.add()` for price summation
+- **Optimal Balance**: 128-bit provides excellent security while enabling efficient encrypted computations
 
 #### **Encrypted Dataset Pricing**
 ```solidity
 struct FileData {
     string cid;              // IPFS CID of the encrypted file
-    euint256 encryptedKey;   // Encrypted decryption key (FHE)
-    euint256 price;          // Encrypted price in wei (FHE)
+    euint128 encryptedKey;   // Encrypted decryption key (FHE)
+    euint128 price;          // Encrypted price in wei (FHE)
     address owner;           // File owner address
     uint256 timestamp;       // Creation timestamp
+}
+```
+
+#### **Provider Statistics with FHE**
+```solidity
+struct ProviderStats {
+    address providerAddress;
+    uint256 fileCount;
+    euint128 totalPrice;  // Encrypted sum of all file prices (calculated using FHE.add)
+}
+```
+
+The smart contract calculates encrypted total prices on-chain:
+```solidity
+// Sum encrypted prices while maintaining encryption
+totalPrice = files[0].price;
+for (uint256 i = 1; i < fileCount; i++) {
+    totalPrice = FHE.add(totalPrice, files[i].price);
 }
 ```
 
 #### **Access Control**
-```
-
-## � Smart Contract Features (v2.0)
-
-### Key Improvements
-
-The latest smart contract deployment includes significant upgrades:
-
-#### **euint64 Support**
-- Upgraded from `euint32` to `euint64` for encrypted values
-- **Price Range**: Support for dataset prices from 0 to ~18.4 ETH
-- **Future-Proof**: Room for complex arithmetic operations on encrypted values
-
-#### **Encrypted Dataset Pricing**
-```solidity
-struct FileData {
-    string cid;              // IPFS CID of the encrypted file
-    euint64 encryptedKey;    // Encrypted decryption key (FHE)
-    euint64 price;           // Encrypted price in wei (FHE)
-    address owner;           // File owner address
-    uint256 timestamp;       // Creation timestamp
-}
 ```
 
 #### **Access Control**
@@ -168,6 +169,21 @@ struct FileData {
    - ✅ Decrypted encryption key
 5. Download and decrypt the dataset locally
 
+### 4️⃣ View Data Provider Statistics
+
+1. Go to the **"Data Providers"** page
+2. Connect your wallet
+3. View anonymous statistics about all providers:
+   - 📊 Total number of providers
+   - 📁 Number of datasets per provider
+   - 🔒 All provider identities are anonymized (e.g., "Provider #1", "Provider #2")
+   - 🔐 Encrypted prices protected by FHE technology
+
+**Privacy Features**:
+- ✅ Provider addresses are never revealed
+- ✅ Only aggregate statistics are shown
+- ✅ Maintains complete transparency without compromising privacy
+
 ## 🏗️ Tech Stack
 
 - **Frontend**: Next.js 14, React, TypeScript
@@ -176,9 +192,10 @@ struct FileData {
 - **Encryption**: FHEVM SDK by Zama (euint256)
 - **Storage**: IPFS via Pinata
 - **Smart Contract**: FHEIPFSStorage on Sepolia
-  - Address: `0x0dacF49E290AbC1C7Be7aDCf75425EFEc2D4B2F2`
-  - Encryption: 256-bit FHE integers for keys and prices
-  - Price Support: Unlimited
+  - Address: `0x896a6d6Bd3781E2C36Fe1a46c1d83A05f8EB0F2F`
+  - Encryption: 128-bit FHE integers (euint128) for keys and prices
+  - Price Support: Practical unlimited range with FHE arithmetic
+  - Provider Statistics: Track anonymous provider activity with encrypted totals
 
 ## 📁 Project Structure
 
@@ -198,11 +215,13 @@ non-te-lo-dico/
 │   └── nextjs/                      # Next.js frontend application
 │       ├── app/
 │       │   ├── upload/              # Upload page
-│       │   └── retrieve/            # Retrieve page
+│       │   ├── retrieve/            # Retrieve page
+│       │   └── data-providers/      # NEW: Provider stats page
 │       ├── contracts/
 │       │   └── deployedContracts.ts # Contract ABIs
 │       └── hooks/
-│           └── useFHEIPFSStorage.ts # Contract interaction hook
+│           ├── useFHEIPFSStorage.ts # Contract interaction hook
+│           └── useDataProviders.ts  # NEW: Provider stats hook
 └── scripts/                         # Utility scripts
     └── generateTsAbis.ts           # ABI generator
 ```
@@ -247,6 +266,12 @@ function grantAccess(string calldata _cid, address _grantee) external
 // Get encrypted values (ACL protected)
 function getEncryptedKey(string calldata _cid) external view returns (euint256)
 function getEncryptedPrice(string calldata _cid) external view returns (euint256)
+
+// Provider statistics
+function getAllProviders() external view returns (address[] memory)
+function getProviderCount() external view returns (uint256)
+function getProviderStats() external returns (ProviderStats[] memory)
+function getProviderStatsByAddress(address _provider) external view returns (uint256 fileCount, string[] memory cids)
 ```
 
 ### Frontend Integration

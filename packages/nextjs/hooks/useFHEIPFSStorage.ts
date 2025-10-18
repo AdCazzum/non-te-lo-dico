@@ -29,7 +29,9 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
 
   // Load user's files
   const loadMyFiles = useCallback(async () => {
-    if (!connectedAddress || !contractInfo || !publicClient) return;
+    if (!connectedAddress || !contractInfo || !publicClient) {
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -66,12 +68,13 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
     }
   }, [connectedAddress, contractInfo, publicClient]);
 
-  // Load files on mount
+  // Load files on mount and when dependencies change
   useEffect(() => {
-    if (connectedAddress && contractInfo) {
+    if (connectedAddress && contractInfo && publicClient) {
       loadMyFiles();
     }
-  }, [connectedAddress, contractInfo, loadMyFiles]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectedAddress, contractInfo?.address, publicClient]);
 
   // Store file on blockchain
   const storeFile = useCallback(
@@ -82,9 +85,9 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
       }
 
       try {
-        // Encrypt the key with FHEVM
+        // Encrypt the key with FHEVM (using euint128)
         const input = fhevmInstance.createEncryptedInput(contractInfo.address as `0x${string}`, connectedAddress);
-        input.add256(encryptionKey);
+        input.add128(encryptionKey);
         const encryptedInput = await input.encrypt();
 
         console.log("Encrypted input:", encryptedInput);
@@ -104,9 +107,9 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         console.log("Converted handle:", encryptedHandle);
         console.log("Converted inputProof:", inputProof);
 
-        // Encrypt the price with FHEVM
+        // Encrypt the price with FHEVM (using euint128)
         const priceInput = fhevmInstance.createEncryptedInput(contractInfo.address as `0x${string}`, connectedAddress);
-        priceInput.add256(priceInWei);
+        priceInput.add128(priceInWei);
         const encryptedPriceInput = await priceInput.encrypt();
 
         console.log("Encrypted price input:", encryptedPriceInput);
@@ -124,12 +127,13 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         console.log("Converted price handle:", encryptedPriceHandle);
         console.log("Converted price inputProof:", priceInputProof);
 
-        // Call storeFile
+        // Call storeFile with explicit gas limit to avoid estimation issues
         const hash = await writeContractAsync({
           address: contractInfo.address as `0x${string}`,
           abi: contractInfo.abi,
           functionName: "storeFile",
           args: [cid, encryptedHandle, inputProof, encryptedPriceHandle, priceInputProof],
+          gas: 5000000n, // Set explicit gas limit (5M gas)
         });
 
         // Wait for transaction
@@ -310,7 +314,9 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         } else if (typeof encryptedPrice === "bigint") {
           hexHandle = toHex(encryptedPrice, { size: 32 });
         } else if (typeof encryptedPrice === "object" && encryptedPrice !== null) {
-          const value = Array.isArray(encryptedPrice) ? encryptedPrice[0] : (encryptedPrice as any).value || encryptedPrice;
+          const value = Array.isArray(encryptedPrice)
+            ? encryptedPrice[0]
+            : (encryptedPrice as any).value || encryptedPrice;
           if (typeof value === "string") {
             hexHandle = value.startsWith("0x") ? value : `0x${value}`;
           } else if (typeof value === "bigint") {

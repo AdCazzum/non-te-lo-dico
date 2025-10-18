@@ -154,8 +154,8 @@ export default function UploadPage() {
             <h2 className="mb-6">Connect Your Wallet</h2>
             <div className="mb-8 max-w-lg mx-auto">
               <p className="text-muted leading-relaxed text-center">
-                To upload encrypted datasets, you need to connect your Ethereum wallet.
-                Your wallet ensures secure access control and all files are encrypted using ZAMA&apos;s FHE technology.
+                To upload encrypted datasets, you need to connect your Ethereum wallet. Your wallet ensures secure
+                access control and all files are encrypted using ZAMA&apos;s FHE technology.
               </p>
             </div>
             <div className="flex justify-center mt-8">
@@ -278,7 +278,8 @@ export default function UploadPage() {
               <div>
                 <label className="block text-sm font-medium mb-3">Set Dataset Price (in ETH)</label>
                 <p className="text-xs text-muted mb-3">
-                  Enter the price for accessing this dataset. The price will be encrypted using ZAMA&apos;s FHE technology.
+                  Enter the price for accessing this dataset. The price will be encrypted using ZAMA&apos;s FHE
+                  technology.
                 </p>
                 <input
                   type="number"
@@ -293,14 +294,23 @@ export default function UploadPage() {
                 {priceInETH && parseFloat(priceInETH) > 0 && (
                   <div className="mt-3 flex items-center gap-2 text-sm text-muted">
                     <Icon name="info" size={16} />
-                    <span>Price: {priceInETH} ETH ({(parseFloat(priceInETH) * 1e18).toFixed(0)} wei)</span>
+                    <span>
+                      Price: {priceInETH} ETH ({(parseFloat(priceInETH) * 1e18).toFixed(0)} wei)
+                    </span>
                   </div>
                 )}
               </div>
 
               <button
                 onClick={handleUpload}
-                disabled={!selectedFile || !priceInETH || parseFloat(priceInETH) <= 0 || isProcessing || isUploading || !fhevmInstance}
+                disabled={
+                  !selectedFile ||
+                  !priceInETH ||
+                  parseFloat(priceInETH) <= 0 ||
+                  isProcessing ||
+                  isUploading ||
+                  !fhevmInstance
+                }
                 className="btn-primary w-full flex items-center justify-center gap-2"
               >
                 {isProcessing || isUploading ? (

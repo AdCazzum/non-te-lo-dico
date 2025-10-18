@@ -52,6 +52,9 @@ export const Icon: React.FC<IconProps> = ({ name, size = 18, className = "" }) =
     users: "fa-solid fa-users",
     building: "fa-solid fa-building",
     medical: "fa-solid fa-briefcase-medical",
+    loader: "fa-solid fa-circle-notch",
+    inbox: "fa-solid fa-inbox",
+    dollar: "fa-solid fa-dollar-sign",
   };
 
   const iconClass = iconMap[name] || "fa-solid fa-circle";

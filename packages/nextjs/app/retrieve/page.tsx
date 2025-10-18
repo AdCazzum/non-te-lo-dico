@@ -213,7 +213,7 @@ export default function RetrievePage() {
 
       return () => clearTimeout(timer);
     }
-  }, [cidFromUrl, isConnected, fhevmInstance, fhevmStatus, ethersSigner]);
+  }, [cidFromUrl, isConnected, fhevmInstance, fhevmStatus, ethersSigner, handleRetrieve]);
 
   // Effect to trigger decryption when requests are set
   useEffect(() => {
@@ -332,8 +332,8 @@ export default function RetrievePage() {
             <h2 className="mb-6">Connect Your Wallet</h2>
             <div className="mb-8 max-w-lg mx-auto">
               <p className="text-muted leading-relaxed text-center">
-                To retrieve encrypted datasets, you need to connect your Ethereum wallet.
-                Access is controlled through ZAMA&apos;s ACL system and only authorized users can decrypt files.
+                To retrieve encrypted datasets, you need to connect your Ethereum wallet. Access is controlled through
+                ZAMA&apos;s ACL system and only authorized users can decrypt files.
               </p>
             </div>
             <div className="flex justify-center mt-8">
@@ -500,9 +500,7 @@ export default function RetrievePage() {
                     <p className="text-xs text-muted mb-2">Dataset Price (Decrypted)</p>
                     <div className="flex items-center gap-2">
                       <Icon name="info" size={16} className="text-[var(--color-primary)]" />
-                      <p className="text-sm font-semibold">
-                        {(Number(decryptedPrice) / 1e18).toFixed(6)} ETH
-                      </p>
+                      <p className="text-sm font-semibold">{(Number(decryptedPrice) / 1e18).toFixed(6)} ETH</p>
                       <span className="text-xs text-muted">({decryptedPrice.toString()} wei)</span>
                     </div>
                   </div>

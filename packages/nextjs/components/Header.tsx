@@ -32,6 +32,12 @@ export const Header = () => {
       path: "/retrieve",
       description: "Access shared data securely",
     },
+    {
+      name: "Data Providers",
+      icon: "users",
+      path: "/data-providers",
+      description: "View provider statistics",
+    },
   ];
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);

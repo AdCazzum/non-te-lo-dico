@@ -6,9 +6,10 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 /**
  * Unit tests for FHEIPFSStorage smart contract
  * 
- * This contract uses euint256 for:
+ * This contract uses euint128 for:
  * - encryptedKey: FHE encrypted decryption key
- * - price: FHE encrypted price in wei (unlimited range)
+ * - price: FHE encrypted price in wei
+ * - totalPrice: FHE encrypted sum of all provider's file prices (calculated using FHE.add)
  * 
  * Note: Full integration tests with FHE encryption/decryption require
  * a running FHEVM node and are tested in the frontend integration tests.
@@ -108,8 +109,8 @@ describe("FHEIPFSStorage", function () {
   });
 
   describe("Contract Type Information", function () {
-    it("Should support euint256 for encryptedKey and price", async function () {
-      // This is a meta-test to verify the contract uses euint256
+    it("Should support euint128 for encryptedKey, price, and totalPrice", async function () {
+      // This is a meta-test to verify the contract uses euint128
       // We verify this by checking that the contract compiled successfully
       // and deployed, which it wouldn't if there were type mismatches
       const address = await fheIPFSStorage.getAddress();
@@ -136,6 +137,37 @@ describe("FHEIPFSStorage", function () {
       expect(await fheIPFSStorage.fileExists(cid1)).to.equal(false);
       expect(await fheIPFSStorage.fileExists(cid2)).to.equal(false);
       expect(await fheIPFSStorage.fileExists(cid3)).to.equal(false);
+    });
+  });
+
+  describe("Provider Statistics", function () {
+    it("Should return empty array when no providers exist", async function () {
+      const providers = await fheIPFSStorage.getAllProviders();
+      expect(providers).to.be.an("array");
+      expect(providers.length).to.equal(0);
+    });
+
+    it("Should return zero for provider count when no providers", async function () {
+      const count = await fheIPFSStorage.getProviderCount();
+      expect(count).to.equal(0);
+    });
+
+    it("Should return empty provider stats when no providers", async function () {
+      const stats = await fheIPFSStorage.getProviderStats.staticCall();
+      expect(stats).to.be.an("array");
+      expect(stats.length).to.equal(0);
+    });
+
+    it("Should revert when querying stats for non-provider address", async function () {
+      await expect(
+        fheIPFSStorage.getProviderStatsByAddress(addr1.address)
+      ).to.be.revertedWith("Address is not a provider");
+    });
+
+    it("Should revert when querying stats for zero address", async function () {
+      await expect(
+        fheIPFSStorage.getProviderStatsByAddress(ethers.ZeroAddress)
+      ).to.be.revertedWith("Address is not a provider");
     });
   });
 });
