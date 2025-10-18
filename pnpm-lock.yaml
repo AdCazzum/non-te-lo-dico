@@ -80,6 +80,9 @@ importers:
       '@fhevm/hardhat-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@fhevm/mock-utils@0.1.0(@zama-fhe/relayer-sdk@0.2.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(typescript@5.9.2))(@fhevm/solidity@0.8.0)(@nomicfoundation/hardhat-ethers@3.1.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@20.19.17)(typescript@5.9.2))(typescript@5.9.2)(utf-8-validate@5.0.10)))(@zama-fhe/oracle-solidity@0.1.0(@openzeppelin/contracts@5.4.0))(@zama-fhe/relayer-sdk@0.2.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(encrypted-types@0.0.4)(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@20.19.17)(typescript@5.9.2))(typescript@5.9.2)(utf-8-validate@5.0.10))
+      '@fhevm/mock-utils':
+        specifier: 0.1.0
+        version: 0.1.0(@zama-fhe/relayer-sdk@0.2.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(typescript@5.9.2)
       '@nomicfoundation/hardhat-chai-matchers':
         specifier: ^2.1.0
         version: 2.1.0(@nomicfoundation/hardhat-ethers@3.1.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@20.19.17)(typescript@5.9.2))(typescript@5.9.2)(utf-8-validate@5.0.10)))(chai@4.5.0)(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@20.19.17)(typescript@5.9.2))(typescript@5.9.2)(utf-8-validate@5.0.10))
