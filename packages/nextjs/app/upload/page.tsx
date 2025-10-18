@@ -135,17 +135,19 @@ export default function UploadPage() {
       <main className="section-padding">
         <div className="container-minimal max-w-2xl mx-auto">
           <div className="card p-12 text-center">
-            <div className="mb-6 flex justify-center">
-              <div className="w-16 h-16 rounded-full bg-[var(--color-secondary)] flex items-center justify-center">
-                <Icon name="alert" size={32} className="text-[var(--color-foreground)]" />
+            <div className="mb-8 flex justify-center">
+              <div className="w-20 h-20 rounded-full bg-[var(--color-primary)] flex items-center justify-center">
+                <Icon name="alert" size={36} className="text-black" />
               </div>
             </div>
-            <h2 className="mb-4">Connect Your Wallet</h2>
-            <p className="mb-8 text-muted">
-              To upload and share encrypted datasets, please connect your Ethereum wallet. This ensures secure access
-              control and cryptographic proof of ownership.
-            </p>
-            <div className="flex justify-center">
+            <h2 className="mb-6">Connect Your Wallet</h2>
+            <div className="mb-8 max-w-lg mx-auto">
+              <p className="text-muted leading-relaxed text-center">
+                To upload encrypted datasets, you need to connect your Ethereum wallet.
+                Your wallet ensures secure access control and all files are encrypted using ZAMA&apos;s FHE technology.
+              </p>
+            </div>
+            <div className="flex justify-center mt-8">
               <RainbowKitCustomConnectButton />
             </div>
           </div>

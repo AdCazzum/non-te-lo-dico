@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { InMemoryStorageProvider } from "@fhevm-sdk";
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { Toaster } from "react-hot-toast";
 import { WagmiProvider } from "wagmi";
 import { Header } from "~~/components/Header";
@@ -42,7 +41,6 @@ export const DappWrapperWithProviders = ({ children }: { children: React.ReactNo
             overlayBlur: "small",
           })}
         >
-          <ProgressBar height="3px" color="#f5c842" />
           <div className={`flex flex-col min-h-screen`}>
             <Header />
             <main className="relative flex flex-col flex-1">
