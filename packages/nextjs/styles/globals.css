@@ -345,3 +345,53 @@ a.card:focus {
     padding-right: 3rem;
   }
 }
+
+/* Toast notifications - Force bottom-right position */
+[data-sonner-toaster],
+.go3958317564 {
+  bottom: 1rem !important;
+  right: 1rem !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 9999 !important;
+}
+
+/* react-hot-toast container positioning */
+div[class*="Toaster"] {
+  bottom: 1rem !important;
+  right: 1rem !important;
+  z-index: 9999 !important;
+  position: fixed !important;
+  pointer-events: none !important;
+}
+
+/* react-hot-toast individual toast positioning */
+div[class*="Toaster"] > div {
+  position: fixed !important;
+  bottom: 1rem !important;
+  right: 1rem !important;
+  left: auto !important;
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure toast visibility */
+div[class*="Toaster"] > div > div {
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Animation for spin loader */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

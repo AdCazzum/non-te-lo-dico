@@ -50,19 +50,27 @@ export const DappWrapperWithProviders = ({ children }: { children: React.ReactNo
             </main>
           </div>
           <Toaster 
-            position="top-right"
+            position="bottom-right"
+            containerStyle={{
+              bottom: '1rem',
+              right: '1rem',
+              position: 'fixed',
+              zIndex: 9999,
+            }}
             toastOptions={{
               duration: 4000,
               style: {
                 background: '#1a1a1a',
                 color: '#e5e5e5',
-                border: '1px solid #2a2a2a',
-                padding: '16px',
-                borderRadius: '0.5rem',
+                border: '2px solid #3a3a3a',
+                padding: '18px 20px',
+                borderRadius: '0.75rem',
                 fontSize: '0.9375rem',
                 fontWeight: '500',
-                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)',
-                maxWidth: '400px',
+                boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.8), 0 10px 10px -5px rgb(0 0 0 / 0.4)',
+                maxWidth: '420px',
+                minWidth: '320px',
+                zIndex: 9999,
               },
               success: {
                 iconTheme: {
@@ -70,7 +78,9 @@ export const DappWrapperWithProviders = ({ children }: { children: React.ReactNo
                   secondary: '#1a1a1a',
                 },
                 style: {
-                  borderLeft: '4px solid #4ade80',
+                  background: '#1a1a1a',
+                  borderLeft: '5px solid #4ade80',
+                  border: '2px solid #4ade80',
                 },
               },
               error: {
@@ -79,7 +89,9 @@ export const DappWrapperWithProviders = ({ children }: { children: React.ReactNo
                   secondary: '#1a1a1a',
                 },
                 style: {
-                  borderLeft: '4px solid #f87171',
+                  background: '#1a1a1a',
+                  borderLeft: '5px solid #f87171',
+                  border: '2px solid #f87171',
                 },
               },
               loading: {
@@ -88,7 +100,9 @@ export const DappWrapperWithProviders = ({ children }: { children: React.ReactNo
                   secondary: '#1a1a1a',
                 },
                 style: {
-                  borderLeft: '4px solid #f5c842',
+                  background: '#1a1a1a',
+                  borderLeft: '5px solid #f5c842',
+                  border: '2px solid #f5c842',
                 },
               },
             }}
