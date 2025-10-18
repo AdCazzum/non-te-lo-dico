@@ -77,10 +77,10 @@ export default function RetrievePage() {
   useEffect(() => {
     // Wait for everything to be ready before auto-loading
     if (cidFromUrl && isConnected && fhevmInstance && fhevmStatus === "ready" && ethersSigner) {
-      // Small delay to ensure SDK is fully initialized
+      // Delay to ensure SDK is fully initialized and avoid RelayerSDKLoader errors
       const timer = setTimeout(() => {
         handleRetrieve(cidFromUrl);
-      }, 500);
+      }, 1000);
       
       return () => clearTimeout(timer);
     }
@@ -111,7 +111,6 @@ export default function RetrievePage() {
     }
 
     if (!storage.contractAddress) {
-      notification.error("Contract not initialized");
       return;
     }
 
@@ -307,27 +306,9 @@ export default function RetrievePage() {
           </p>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex gap-3 mb-10">
-          <Link 
-            href="/upload" 
-            className="btn-outline flex items-center gap-2"
-          >
-            <Icon name="upload" size={18} />
-            Upload
-          </Link>
-          <Link 
-            href="/retrieve" 
-            className="btn-primary flex items-center gap-2"
-          >
-            <Icon name="download" size={18} />
-            Retrieve
-          </Link>
-        </div>
-
         <div className="space-y-6">
           {/* Status Messages */}
-          {fhevmError && (
+          {fhevmError && !fhevmError.message.includes("RelayerSDKLoader") && (
             <div className="card p-4 border-l-4 border-red-500 bg-red-50">
               <div className="flex items-start gap-3">
                 <Icon name="alert" size={20} className="text-red-600 flex-shrink-0 mt-0.5" />

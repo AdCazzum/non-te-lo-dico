@@ -254,7 +254,7 @@ a.card:focus {
 
 /* Section spacing - Increased */
 .section-padding {
-  padding-top: 4rem;
+  padding-top: 2rem;
   padding-bottom: 4rem;
 }
 
@@ -316,7 +316,7 @@ a.card:focus {
   }
   
   .section-padding {
-    padding-top: 5rem;
+    padding-top: 2.5rem;
     padding-bottom: 5rem;
   }
   
@@ -336,7 +336,7 @@ a.card:focus {
   }
   
   .section-padding {
-    padding-top: 6rem;
+    padding-top: 3rem;
     padding-bottom: 6rem;
   }
   
@@ -394,4 +394,32 @@ div[class*="Toaster"] > div > div {
 
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+/* Sidebar smooth animations */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+button, a {
+  transition: all 0.2s ease-in-out;
 }

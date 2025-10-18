@@ -165,7 +165,6 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
   const getEncryptedKey = useCallback(
     async (cid: string) => {
       if (!contractInfo || !publicClient) {
-        notification.error("Contract not initialized");
         return null;
       }
 
