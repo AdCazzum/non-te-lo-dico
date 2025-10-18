@@ -10,6 +10,7 @@ import { useCombinedIPFSUpload } from "~~/hooks/useCombinedIPFS";
 import { generateEncryptionKey, encryptFile } from "~~/utils/crypto";
 import { notification } from "~~/utils/helper/notification";
 import Link from "next/link";
+import { Icon } from "~~/components/Icon";
 
 export default function UploadPage() {
   const { isConnected, address, chain } = useAccount();
@@ -134,227 +135,281 @@ export default function UploadPage() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-white shadow-xl rounded-lg p-8 text-center">
-          <div className="mb-4">
-            <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-900/30 text-amber-400 text-3xl">
-              ⚠️
-            </span>
-          </div>
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Wallet Not Connected</h2>
-          <p className="text-gray-700 mb-6">Connect your wallet to upload encrypted files</p>
-          <div className="flex items-center justify-center">
-            <RainbowKitCustomConnectButton />
+      <main className="section-padding">
+        <div className="container-minimal max-w-2xl">
+          <div className="card p-12 text-center">
+            <div className="mb-6 flex justify-center">
+              <div className="w-16 h-16 rounded-full bg-[var(--color-secondary)] flex items-center justify-center">
+                <Icon name="alert" size={32} className="text-[var(--color-foreground)]" />
+              </div>
+            </div>
+            <h2 className="mb-4">Wallet Not Connected</h2>
+            <p className="mb-8">Connect your wallet to upload encrypted files</p>
+            <div className="flex justify-center">
+              <RainbowKitCustomConnectButton />
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">🔐 Secure File Upload</h1>
-        <p className="text-gray-600">
-          Upload encrypted files to IPFS with FHE-protected decryption keys
-        </p>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex justify-center gap-4 mb-6">
-        <Link 
-          href="/" 
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-        >
-          📤 Upload File
-        </Link>
-        <Link 
-          href="/retrieve" 
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
-        >
-          🔍 Retrieve File
-        </Link>
-      </div>
-
-      {/* FHEVM Status */}
-      {fhevmError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-800">⚠️ FHEVM Error: {fhevmError.message}</p>
-        </div>
-      )}
-
-      {fhevmStatus === "loading" && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">🔄 Initializing FHEVM...</p>
-        </div>
-      )}
-
-      {/* Upload Error */}
-      {uploadError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-800">❌ Upload Error: {uploadError}</p>
-          <p className="text-xs text-red-600 mt-1">
-            Make sure you have configured NEXT_PUBLIC_PINATA_JWT in your .env file
+    <main className="section-padding">
+      <div className="container-minimal max-w-4xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="mb-4">Upload File</h1>
+          <p className="text-muted">
+            Encrypt and upload files to IPFS with FHE-protected decryption keys
           </p>
         </div>
-      )}
 
-      {/* Show Pinata setup instructions if not configured */}
-      {!isPinataConfigured && (
-        <PinataSetupInstructions />
-      )}
-
-      {/* Upload Success with Method */}
-      {uploadMethod && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <p className="text-sm text-green-800">✅ Uploaded successfully via {uploadMethod}</p>
-        </div>
-      )}
-
-      {/* Upload Section */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Upload File</h2>
-        
-        <div className="space-y-4">
-          {/* File Input */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select File
-            </label>
-            <input
-              type="file"
-              onChange={handleFileSelect}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              disabled={isProcessing || isUploading}
-            />
-            {selectedFile && (
-              <p className="mt-2 text-sm text-gray-600">
-                Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
-              </p>
-            )}
-          </div>
-
-          {/* Upload Button */}
-          <button
-            onClick={handleUpload}
-            disabled={!selectedFile || isProcessing || isUploading || !fhevmInstance}
-            className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+        {/* Navigation Tabs */}
+        <div className="flex justify-center gap-3 mb-10">
+          <Link 
+            href="/upload" 
+            className="btn-primary flex items-center gap-2"
           >
-            {isProcessing || isUploading ? "Processing..." : "Encrypt & Upload to IPFS"}
-          </button>
-
-          {/* Status Display */}
-          {encryptionKey && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-sm text-green-800">
-                ✓ Encryption key generated: {encryptionKey}
-              </p>
-            </div>
-          )}
-
-          {uploadedCID && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-sm text-green-800 font-medium mb-2">
-                ✓ File uploaded successfully!
-              </p>
-              <p className="text-xs text-green-700 break-all">
-                IPFS CID: {uploadedCID}
-              </p>
-            </div>
-          )}
+            <Icon name="upload" size={18} />
+            Upload
+          </Link>
+          <Link 
+            href="/retrieve" 
+            className="btn-outline flex items-center gap-2"
+          >
+            <Icon name="download" size={18} />
+            Retrieve
+          </Link>
         </div>
-      </div>
 
-      {/* Grant Access Section */}
-      {uploadedCID && (
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Grant Access</h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Ethereum Address
-              </label>
-              <input
-                type="text"
-                value={granteeAddress}
-                onChange={(e) => setGranteeAddress(e.target.value)}
-                placeholder="0x..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              />
-            </div>
-
-            <button
-              onClick={handleGrantAccess}
-              className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
-            >
-              Grant Access
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Share Link Section */}
-      {uploadedCID && (
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Share File</h2>
-          
-          <div className="space-y-4">
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-2">Shareable Link:</p>
-              <p className="text-sm text-blue-600 break-all font-mono">
-                {generateShareLink()}
-              </p>
-            </div>
-
-            <button
-              onClick={handleCopyLink}
-              className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium"
-            >
-              📋 Copy Share Link
-            </button>
-
-            <p className="text-xs text-gray-500 text-center">
-              Share this link with users who have been granted access
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* My Files Section */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">My Files</h2>
-        
-        {storage.isLoading ? (
-          <p className="text-gray-600">Loading...</p>
-        ) : storage.myFiles.length === 0 ? (
-          <p className="text-gray-600">No files uploaded yet</p>
-        ) : (
-          <div className="space-y-2">
-            {storage.myFiles.map((file, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 break-all">
-                      CID: {file.cid}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Uploaded: {new Date(Number(file.timestamp) * 1000).toLocaleString()}
-                    </p>
-                  </div>
-                  <Link
-                    href={`/retrieve?cid=${file.cid}`}
-                    className="ml-4 px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200"
-                  >
-                    View
-                  </Link>
+        <div className="space-y-6">
+          {/* Status Messages */}
+          {fhevmError && (
+            <div className="card p-4 border-l-4 border-red-500 bg-red-50">
+              <div className="flex items-start gap-3">
+                <Icon name="alert" size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-red-900">FHEVM Error</p>
+                  <p className="text-sm text-red-700 mt-1">{fhevmError.message}</p>
                 </div>
               </div>
-            ))}
+            </div>
+          )}
+
+          {fhevmStatus === "loading" && (
+            <div className="card p-4 border-l-4 border-blue-500 bg-blue-50">
+              <div className="flex items-start gap-3">
+                <Icon name="loading" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-blue-900">Initializing FHEVM...</p>
+              </div>
+            </div>
+          )}
+
+          {uploadError && (
+            <div className="card p-4 border-l-4 border-red-500 bg-red-50">
+              <div className="flex items-start gap-3">
+                <Icon name="x" size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-red-900">Upload Error</p>
+                  <p className="text-sm text-red-700 mt-1">{uploadError}</p>
+                  <p className="text-xs text-red-600 mt-2">
+                    Make sure you have configured NEXT_PUBLIC_PINATA_JWT in your .env file
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!isPinataConfigured && <PinataSetupInstructions />}
+
+          {uploadMethod && (
+            <div className="card p-4 border-l-4 border-green-500 bg-green-50">
+              <div className="flex items-start gap-3">
+                <Icon name="check" size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-green-900">Uploaded successfully via {uploadMethod}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Upload Section */}
+          <div className="card p-8">
+            <h3 className="mb-6">Select File</h3>
+            
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium mb-3">
+                  Choose a file to encrypt and upload
+                </label>
+                <input
+                  type="file"
+                  onChange={handleFileSelect}
+                  className="input-field"
+                  disabled={isProcessing || isUploading}
+                />
+                {selectedFile && (
+                  <div className="mt-3 flex items-center gap-2 text-sm text-muted">
+                    <Icon name="file" size={16} />
+                    <span>{selectedFile.name}</span>
+                    <span className="text-xs">({(selectedFile.size / 1024).toFixed(2)} KB)</span>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleUpload}
+                disabled={!selectedFile || isProcessing || isUploading || !fhevmInstance}
+                className="btn-primary w-full flex items-center justify-center gap-2"
+              >
+                {isProcessing || isUploading ? (
+                  <>
+                    <Icon name="loading" size={18} />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="lock" size={18} />
+                    Encrypt & Upload to IPFS
+                  </>
+                )}
+              </button>
+
+              {encryptionKey && (
+                <div className="card p-4 border-l-4 border-green-500 bg-green-50">
+                  <div className="flex items-start gap-3">
+                    <Icon name="key" size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-green-900">Encryption key generated</p>
+                      <p className="text-xs text-green-700 mt-1 font-mono">{encryptionKey}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {uploadedCID && (
+                <div className="card p-4 border-l-4 border-green-500 bg-green-50">
+                  <div className="flex items-start gap-3">
+                    <Icon name="check" size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-900 mb-2">
+                        File uploaded successfully!
+                      </p>
+                      <p className="text-xs text-green-700 break-all font-mono">
+                        IPFS CID: {uploadedCID}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+
+          {/* Grant Access Section */}
+          {uploadedCID && (
+            <div className="card p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <Icon name="user" size={24} />
+                <h3>Grant Access</h3>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-3">
+                    Ethereum Address
+                  </label>
+                  <input
+                    type="text"
+                    value={granteeAddress}
+                    onChange={(e) => setGranteeAddress(e.target.value)}
+                    placeholder="0x..."
+                    className="input-field"
+                  />
+                </div>
+
+                <button
+                  onClick={handleGrantAccess}
+                  className="btn-primary w-full flex items-center justify-center gap-2"
+                >
+                  <Icon name="unlock" size={18} />
+                  Grant Access
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Share Link Section */}
+          {uploadedCID && (
+            <div className="card p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <Icon name="share" size={24} />
+                <h3>Share File</h3>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="card bg-[var(--color-secondary)] p-4">
+                  <p className="text-xs text-muted mb-2">Shareable Link</p>
+                  <p className="text-sm break-all font-mono text-[var(--color-foreground)]">
+                    {generateShareLink()}
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleCopyLink}
+                  className="btn-outline w-full flex items-center justify-center gap-2"
+                >
+                  <Icon name="copy" size={18} />
+                  Copy Share Link
+                </button>
+
+                <p className="text-xs text-muted text-center">
+                  Share this link with users who have been granted access
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* My Files Section */}
+          <div className="card p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <Icon name="file" size={24} />
+              <h3>My Files</h3>
+            </div>
+            
+            {storage.isLoading ? (
+              <div className="flex items-center justify-center gap-2 py-8 text-muted">
+                <Icon name="loading" size={20} />
+                <span>Loading...</span>
+              </div>
+            ) : storage.myFiles.length === 0 ? (
+              <p className="text-muted text-center py-8">No files uploaded yet</p>
+            ) : (
+              <div className="space-y-3">
+                {storage.myFiles.map((file, index) => (
+                  <div key={index} className="card p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium break-all mb-2">
+                          {file.cid}
+                        </p>
+                        <p className="text-xs text-muted">
+                          {new Date(Number(file.timestamp) * 1000).toLocaleString()}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/retrieve?cid=${file.cid}`}
+                        className="btn-outline flex items-center gap-2 whitespace-nowrap text-sm py-2 px-4"
+                      >
+                        <Icon name="search" size={16} />
+                        View
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

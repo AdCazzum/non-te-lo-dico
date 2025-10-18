@@ -1,32 +1,46 @@
+import { useState, useRef } from "react";
 import { NetworkOptions } from "./NetworkOptions";
 import { useDisconnect } from "wagmi";
-import { ArrowLeftOnRectangleIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { Icon } from "~~/components/Icon";
+import { useOutsideClick } from "~~/hooks/helper";
 
 export const WrongNetworkDropdown = () => {
   const { disconnect } = useDisconnect();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useOutsideClick(dropdownRef, () => setIsOpen(false));
 
   return (
-    <div className="dropdown dropdown-end mr-2">
-      <label tabIndex={0} className="btn btn-error btn-sm dropdown-toggle gap-1">
-        <span>Wrong network</span>
-        <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
-      </label>
-      <ul
-        tabIndex={0}
-        className="dropdown-content menu p-2 mt-1 shadow-center shadow-accent bg-base-200 rounded-box gap-1"
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-colors text-sm font-medium"
+        type="button"
       >
-        <NetworkOptions />
-        <li>
-          <button
-            className="menu-item text-error btn-sm rounded-xl! flex gap-3 py-3"
-            type="button"
-            onClick={() => disconnect()}
-          >
-            <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" />
-            <span>Disconnect</span>
-          </button>
-        </li>
-      </ul>
+        <Icon name="alert" size={18} />
+        <span>Wrong Network</span>
+        <Icon name="arrowRight" size={16} className={`transform transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-56 bg-white border border-[var(--color-border)] rounded-lg shadow-lg overflow-hidden z-50">
+          <div className="py-1">
+            <NetworkOptions hidden={false} />
+            <button
+              className="w-full px-4 py-3 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-3 transition-colors border-t border-[var(--color-border)]"
+              type="button"
+              onClick={() => {
+                disconnect();
+                setIsOpen(false);
+              }}
+            >
+              <Icon name="x" size={16} />
+              <span>Disconnect</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

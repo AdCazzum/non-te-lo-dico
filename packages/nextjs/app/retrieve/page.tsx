@@ -11,6 +11,7 @@ import { decryptFile, arrayBufferToText } from "~~/utils/crypto";
 import { notification } from "~~/utils/helper/notification";
 import { useWagmiEthers } from "~~/hooks/wagmi/useWagmiEthers";
 import Link from "next/link";
+import { Icon } from "~~/components/Icon";
 
 export default function RetrievePage() {
   const searchParams = useSearchParams();
@@ -276,197 +277,245 @@ export default function RetrievePage() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-white shadow-xl rounded-lg p-8 text-center">
-          <div className="mb-4">
-            <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-900/30 text-amber-400 text-3xl">
-              ⚠️
-            </span>
-          </div>
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Wallet Not Connected</h2>
-          <p className="text-gray-700 mb-6">Connect your wallet to retrieve encrypted files</p>
-          <div className="flex items-center justify-center">
-            <RainbowKitCustomConnectButton />
+      <main className="section-padding">
+        <div className="container-minimal max-w-2xl">
+          <div className="card p-12 text-center">
+            <div className="mb-6 flex justify-center">
+              <div className="w-16 h-16 rounded-full bg-[var(--color-secondary)] flex items-center justify-center">
+                <Icon name="alert" size={32} className="text-[var(--color-foreground)]" />
+              </div>
+            </div>
+            <h2 className="mb-4">Wallet Not Connected</h2>
+            <p className="mb-8">Connect your wallet to retrieve encrypted files</p>
+            <div className="flex justify-center">
+              <RainbowKitCustomConnectButton />
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">🔍 Retrieve File</h1>
-        <p className="text-gray-600">
-          Access and decrypt files shared with you
-        </p>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex justify-center gap-4 mb-6">
-        <Link 
-          href="/" 
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
-        >
-          📤 Upload File
-        </Link>
-        <Link 
-          href="/retrieve" 
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-        >
-          🔍 Retrieve File
-        </Link>
-      </div>
-
-      {/* FHEVM Status */}
-      {fhevmError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-800">⚠️ FHEVM Error: {fhevmError.message}</p>
+    <main className="section-padding">
+      <div className="container-minimal max-w-4xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="mb-4">Retrieve File</h1>
+          <p className="text-muted">
+            Access and decrypt files shared with you
+          </p>
         </div>
-      )}
 
-      {fhevmStatus === "loading" && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">🔄 Initializing FHEVM SDK... Please wait.</p>
-        </div>
-      )}
-
-      {fhevmStatus === "ready" && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <p className="text-sm text-green-800">✅ FHEVM SDK Ready</p>
-        </div>
-      )}
-
-      {/* Input CID Section */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Enter File CID</h2>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              IPFS CID
-            </label>
-            <input
-              type="text"
-              value={inputCID}
-              onChange={(e) => setInputCID(e.target.value)}
-              placeholder="Enter IPFS CID..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              disabled={isProcessing}
-            />
-          </div>
-
-          <button
-            onClick={() => handleRetrieve()}
-            disabled={!inputCID || isProcessing || fhevmStatus !== "ready" || !ethersSigner}
-            className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+        {/* Navigation Tabs */}
+        <div className="flex justify-center gap-3 mb-10">
+          <Link 
+            href="/upload" 
+            className="btn-outline flex items-center gap-2"
           >
-            {isProcessing 
-              ? "Processing..." 
-              : fhevmStatus !== "ready" 
-              ? "Waiting for FHEVM..." 
-              : !ethersSigner
-              ? "Waiting for Wallet..."
-              : "Retrieve & Decrypt File"}
-          </button>
+            <Icon name="upload" size={18} />
+            Upload
+          </Link>
+          <Link 
+            href="/retrieve" 
+            className="btn-primary flex items-center gap-2"
+          >
+            <Icon name="download" size={18} />
+            Retrieve
+          </Link>
+        </div>
+
+        <div className="space-y-6">
+          {/* Status Messages */}
+          {fhevmError && (
+            <div className="card p-4 border-l-4 border-red-500 bg-red-50">
+              <div className="flex items-start gap-3">
+                <Icon name="alert" size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-red-900">FHEVM Error</p>
+                  <p className="text-sm text-red-700 mt-1">{fhevmError.message}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {fhevmStatus === "loading" && (
+            <div className="card p-4 border-l-4 border-blue-500 bg-blue-50">
+              <div className="flex items-start gap-3">
+                <Icon name="loading" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-blue-900">Initializing FHEVM SDK... Please wait.</p>
+              </div>
+            </div>
+          )}
+
+          {fhevmStatus === "ready" && (
+            <div className="card p-4 border-l-4 border-green-500 bg-green-50">
+              <div className="flex items-start gap-3">
+                <Icon name="check" size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-green-900">FHEVM SDK Ready</p>
+              </div>
+            </div>
+          )}
+
+          {/* Input CID Section */}
+          <div className="card p-8">
+            <h3 className="mb-6">Enter File CID</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-3">
+                  IPFS Content Identifier
+                </label>
+                <input
+                  type="text"
+                  value={inputCID}
+                  onChange={(e) => setInputCID(e.target.value)}
+                  placeholder="Enter IPFS CID..."
+                  className="input-field"
+                  disabled={isProcessing}
+                />
+              </div>
+
+              <button
+                onClick={() => handleRetrieve()}
+                disabled={!inputCID || isProcessing || fhevmStatus !== "ready" || !ethersSigner}
+                className="btn-primary w-full flex items-center justify-center gap-2"
+              >
+                {isProcessing ? (
+                  <>
+                    <Icon name="loading" size={18} />
+                    Processing...
+                  </>
+                ) : fhevmStatus !== "ready" ? (
+                  <>
+                    <Icon name="loading" size={18} />
+                    Waiting for FHEVM...
+                  </>
+                ) : !ethersSigner ? (
+                  <>
+                    <Icon name="loading" size={18} />
+                    Waiting for Wallet...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="unlock" size={18} />
+                    Retrieve & Decrypt File
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* File Metadata */}
+          {fileMetadata && currentCID && (
+            <div className="card p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <Icon name="file" size={24} />
+                <h3>File Information</h3>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-muted mb-1">CID</p>
+                  <p className="text-sm break-all font-mono">{currentCID}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted mb-1">Owner</p>
+                  <p className="text-sm font-mono">{fileMetadata.owner}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted mb-1">Uploaded</p>
+                  <p className="text-sm">
+                    {new Date(Number(fileMetadata.timestamp) * 1000).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Decryption Progress */}
+          {isDecrypting && (
+            <div className="card p-6 border-l-4 border-blue-500 bg-blue-50">
+              <div className="flex items-center gap-3">
+                <Icon name="loading" size={24} className="text-blue-600" />
+                <p className="text-sm text-blue-900 font-medium">
+                  {decryptMessage || "Decrypting encryption key with FHEVM..."}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Decryption Error */}
+          {decryptError && (
+            <div className="card p-4 border-l-4 border-red-500 bg-red-50">
+              <div className="flex items-start gap-3">
+                <Icon name="x" size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-red-900">Decryption Error</p>
+                  <p className="text-sm text-red-700 mt-1">{decryptError}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Access Denied */}
+          {hasAccess === false && (
+            <div className="card p-10">
+              <div className="text-center">
+                <div className="mb-6 flex justify-center">
+                  <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+                    <Icon name="x" size={32} className="text-red-600" />
+                  </div>
+                </div>
+                <h3 className="mb-3 text-red-900">Access Denied</h3>
+                <p className="text-sm text-red-700 mb-2">
+                  You don't have permission to decrypt this file.
+                </p>
+                <p className="text-xs text-red-600">
+                  Please contact the file owner to request access.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Error Display */}
+          {error && !hasAccess && (
+            <div className="card p-4 border-l-4 border-red-500 bg-red-50">
+              <div className="flex items-start gap-3">
+                <Icon name="alert" size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-900">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Decrypted Content */}
+          {decryptedContent && hasAccess && (
+            <div className="card p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <Icon name="file" size={24} />
+                <h3>File Content</h3>
+              </div>
+              
+              <div className="card bg-[var(--color-secondary)] p-6 mb-6">
+                <pre className="text-sm whitespace-pre-wrap font-mono overflow-auto max-h-96">
+                  {decryptedContent}
+                </pre>
+              </div>
+
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(decryptedContent);
+                  notification.success("Content copied to clipboard!");
+                }}
+                className="btn-outline flex items-center gap-2"
+              >
+                <Icon name="copy" size={18} />
+                Copy Content
+              </button>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* File Metadata */}
-      {fileMetadata && currentCID && (
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">File Information</h2>
-          
-          <div className="space-y-3">
-            <div>
-              <p className="text-sm font-medium text-gray-600">CID:</p>
-              <p className="text-sm text-gray-900 break-all font-mono">{currentCID}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">Owner:</p>
-              <p className="text-sm text-gray-900 font-mono">{fileMetadata.owner}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-600">Uploaded:</p>
-              <p className="text-sm text-gray-900">
-                {new Date(Number(fileMetadata.timestamp) * 1000).toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Decryption Progress */}
-      {isDecrypting && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <div className="flex items-center justify-center space-x-3">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-            <p className="text-blue-800 font-medium">
-              {decryptMessage || "Decrypting encryption key with FHEVM..."}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Decryption Error */}
-      {decryptError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-800">❌ Decryption Error: {decryptError}</p>
-        </div>
-      )}
-
-      {/* Access Denied */}
-      {hasAccess === false && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <div className="text-center">
-            <div className="mb-4">
-              <span className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-600 text-4xl">
-                🚫
-              </span>
-            </div>
-            <h2 className="text-2xl font-bold text-red-900 mb-2">Access Denied</h2>
-            <p className="text-red-700">
-              You don't have permission to decrypt this file.
-            </p>
-            <p className="text-sm text-red-600 mt-2">
-              Please contact the file owner to request access.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Error Display */}
-      {error && !hasAccess && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-800">❌ {error}</p>
-        </div>
-      )}
-
-      {/* Decrypted Content */}
-      {decryptedContent && hasAccess && (
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">📄 File Content</h2>
-          
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <pre className="text-sm text-gray-900 whitespace-pre-wrap font-mono overflow-auto max-h-96">
-              {decryptedContent}
-            </pre>
-          </div>
-
-          <div className="mt-4">
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(decryptedContent);
-                notification.success("Content copied to clipboard!");
-              }}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
-            >
-              📋 Copy Content
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+    </main>
   );
 }

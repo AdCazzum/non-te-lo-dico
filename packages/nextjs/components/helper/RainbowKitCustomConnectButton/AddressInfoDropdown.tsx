@@ -2,11 +2,10 @@ import { useRef, useState } from "react";
 import { NetworkOptions } from "./NetworkOptions";
 import { Address, getAddress } from "viem";
 import { useDisconnect } from "wagmi";
-import { ArrowLeftIcon } from "@heroicons/react/20/solid";
-import { ArrowsRightLeftIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 import { BlockieAvatar } from "~~/components/helper";
 import { useOutsideClick } from "~~/hooks/helper";
 import { getTargetNetworks } from "~~/utils/helper";
+import { Icon } from "~~/components/Icon";
 
 const allowedNetworks = getTargetNetworks();
 
@@ -22,49 +21,59 @@ export const AddressInfoDropdown = ({ address, ensAvatar, displayName }: Address
   const checkSumAddress = getAddress(address);
 
   const [selectingNetwork, setSelectingNetwork] = useState(false);
-  const dropdownRef = useRef<HTMLDetailsElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const closeDropdown = () => {
     setSelectingNetwork(false);
-    dropdownRef.current?.removeAttribute("open");
+    setIsOpen(false);
   };
 
   useOutsideClick(dropdownRef, closeDropdown);
 
   return (
-    <>
-      <details ref={dropdownRef} className="dropdown dropdown-end leading-3">
-        <summary className="btn btn-secondary btn-sm pl-0 pr-2 shadow-md dropdown-toggle gap-0 h-auto!">
-          <BlockieAvatar address={checkSumAddress} size={30} ensImage={ensAvatar} />
-          <span className="ml-2 mr-1">{displayName}</span>
-          <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
-        </summary>
-        <ul className="dropdown-content menu z-2 p-2 mt-2 shadow-center shadow-accent bg-base-200 rounded-box gap-1">
-          <NetworkOptions hidden={!selectingNetwork} />
-          {allowedNetworks.length > 1 ? (
-            <li className={selectingNetwork ? "hidden" : ""}>
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="btn-outline flex items-center gap-2 pl-2 pr-3"
+        type="button"
+      >
+        <BlockieAvatar address={checkSumAddress} size={24} ensImage={ensAvatar} />
+        <span className="text-sm font-medium">{displayName}</span>
+        <Icon name="arrowRight" size={16} className={`transform transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-56 bg-white border border-[var(--color-border)] rounded-lg shadow-lg overflow-hidden z-50">
+          {selectingNetwork ? (
+            <NetworkOptions hidden={false} />
+          ) : (
+            <div className="py-1">
+              {allowedNetworks.length > 1 && (
+                <button
+                  className="w-full px-4 py-3 text-left text-sm hover:bg-[var(--color-secondary)] flex items-center gap-3 transition-colors"
+                  type="button"
+                  onClick={() => setSelectingNetwork(true)}
+                >
+                  <Icon name="arrowRight" size={16} />
+                  <span>Switch Network</span>
+                </button>
+              )}
               <button
-                className="h-8 btn-sm rounded-xl! flex gap-3 py-3"
+                className="w-full px-4 py-3 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-3 transition-colors"
                 type="button"
                 onClick={() => {
-                  setSelectingNetwork(true);
+                  disconnect();
+                  closeDropdown();
                 }}
               >
-                <ArrowsRightLeftIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Switch Network</span>
+                <Icon name="x" size={16} />
+                <span>Disconnect</span>
               </button>
-            </li>
-          ) : null}
-          <li className={selectingNetwork ? "hidden" : ""}>
-            <button
-              className="menu-item text-error h-8 btn-sm rounded-xl! flex gap-3 py-3"
-              type="button"
-              onClick={() => disconnect()}
-            >
-              <ArrowLeftIcon className="h-6 w-4 ml-2 sm:ml-0" /> <span>Disconnect</span>
-            </button>
-          </li>
-        </ul>
-      </details>
-    </>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 };

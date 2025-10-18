@@ -8,6 +8,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Address } from "viem";
 import { useTargetNetwork } from "~~/hooks/helper/useTargetNetwork";
 import { getBlockExplorerAddressLink } from "~~/utils/helper";
+import { Icon } from "~~/components/Icon";
 
 /**
  * Custom Wagmi Connect Button (watch balance + custom design)
@@ -28,7 +29,12 @@ export const RainbowKitCustomConnectButton = () => {
             {(() => {
               if (!connected) {
                 return (
-                  <button className="btn btn-md rounded-none bg-[#FFD208] text-gray-900 cursor-pointer border-none" onClick={openConnectModal} type="button">
+                  <button 
+                    className="btn-primary flex items-center gap-2" 
+                    onClick={openConnectModal} 
+                    type="button"
+                  >
+                    <Icon name="user" size={18} />
                     Connect Wallet
                   </button>
                 );
@@ -39,10 +45,10 @@ export const RainbowKitCustomConnectButton = () => {
               }
 
               return (
-                <>
-                  <div className="flex flex-col items-center mr-1 text-gray-900">
-                    <Balance address={account.address as Address} className="min-h-0 h-auto" />
-                    <span className="text-xs text-gray-900">{chain.name}</span>
+                <div className="flex items-center gap-3">
+                  <div className="hidden md:flex flex-col items-end">
+                    <Balance address={account.address as Address} className="text-sm font-medium" />
+                    <span className="text-xs text-muted">{chain.name}</span>
                   </div>
                   <AddressInfoDropdown
                     address={account.address as Address}
@@ -50,7 +56,7 @@ export const RainbowKitCustomConnectButton = () => {
                     ensAvatar={account.ensAvatar}
                     blockExplorerAddressLink={blockExplorerAddressLink}
                   />
-                </>
+                </div>
               );
             })()}
           </>

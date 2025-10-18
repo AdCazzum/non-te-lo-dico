@@ -1,23 +1,30 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
+import Link from "next/link";
 import { RainbowKitCustomConnectButton } from "~~/components/helper";
-import { useOutsideClick } from "~~/hooks/helper";
+import { Icon } from "~~/components/Icon";
 
 /**
- * Site header
+ * Minimal site header
  */
 export const Header = () => {
-  const burgerMenuRef = useRef<HTMLDetailsElement>(null);
-  useOutsideClick(burgerMenuRef, () => {
-    burgerMenuRef?.current?.removeAttribute("open");
-  });
-
   return (
-    <div className="sticky lg:static top-0 navbar min-h-0 shrink-0 justify-between z-20 px-0 sm:px-2">
-      <div className="navbar-end grow mr-4">
-        <RainbowKitCustomConnectButton />
-      </div>
-    </div>
+    <header className="border-b border-[var(--color-border)] bg-white sticky top-0 z-50">
+      <nav className="container-minimal">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo / Brand */}
+          <Link href="/" className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+            <Icon name="shield" size={24} className="text-[var(--color-foreground)]" />
+            <span className="text-lg font-medium tracking-tight">Secure Files</span>
+          </Link>
+
+          {/* Wallet Connection */}
+          <div className="flex items-center">
+            <RainbowKitCustomConnectButton />
+          </div>
+        </div>
+      </nav>
+    </header>
   );
 };
