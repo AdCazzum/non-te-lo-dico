@@ -1,0 +1,40 @@
+# Vercel files
+.vercel
+
+# Build artifacts
+.next
+.turbo
+out
+
+# Dependencies
+node_modules
+
+# Hardhat
+packages/hardhat
+
+# Tests
+*.test.ts
+*.test.tsx
+test
+tests
+__tests__
+
+# Config files (keep vercel.json)
+.env.local
+.env*.local
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+
+# Documentation (optional - rimuovi se vuoi includerla)
+*.md
+!README.md
+
+# Scripts non necessari per build
+scripts
