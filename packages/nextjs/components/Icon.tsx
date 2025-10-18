@@ -47,6 +47,11 @@ export const Icon: React.FC<IconProps> = ({ name, size = 18, className = "" }) =
     arrowRight: "fa-solid fa-chevron-right",
     home: "fa-solid fa-house",
     vault: "fa-solid fa-vault",
+    globe: "fa-solid fa-globe",
+    brain: "fa-solid fa-brain",
+    users: "fa-solid fa-users",
+    building: "fa-solid fa-building",
+    medical: "fa-solid fa-briefcase-medical",
   };
 
   const iconClass = iconMap[name] || "fa-solid fa-circle";

@@ -18,19 +18,19 @@ export const Header = () => {
       name: "Home",
       icon: "home",
       path: "/",
-      description: "Main dashboard",
+      description: "Platform overview & how it works",
     },
     {
-      name: "Upload",
+      name: "Upload Dataset",
       icon: "upload",
       path: "/upload",
-      description: "Upload encrypted files",
+      description: "Share encrypted AI training data",
     },
     {
-      name: "Retrieve",
+      name: "Retrieve Dataset",
       icon: "download",
       path: "/retrieve",
-      description: "Retrieve shared files",
+      description: "Access shared data securely",
     },
   ];
 

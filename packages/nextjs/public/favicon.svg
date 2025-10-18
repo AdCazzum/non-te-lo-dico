@@ -1,28 +1,13 @@
-<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background with rounded corners -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Black rounded square background -->
   <rect width="512" height="512" rx="96" fill="#0f0f0f"/>
   
-  <!-- Vault icon in yellow -->
-  <g transform="translate(106, 106) scale(1.17)">
-    <!-- Main vault body -->
-    <rect x="32" y="64" width="192" height="192" rx="16" fill="#f5c842" stroke="#1a1a1a" stroke-width="8"/>
-    
-    <!-- Vault door circle -->
-    <circle cx="128" cy="160" r="64" fill="#1a1a1a" stroke="#f5c842" stroke-width="6"/>
-    
-    <!-- Inner circle detail -->
-    <circle cx="128" cy="160" r="48" fill="#f5c842" stroke="#1a1a1a" stroke-width="4"/>
-    
-    <!-- Center lock -->
-    <circle cx="128" cy="160" r="16" fill="#1a1a1a"/>
-    
-    <!-- Handle -->
-    <line x1="192" y1="160" x2="224" y2="160" stroke="#f5c842" stroke-width="8" stroke-linecap="round"/>
-    
-    <!-- Bolts -->
-    <circle cx="64" cy="96" r="8" fill="#1a1a1a"/>
-    <circle cx="192" cy="96" r="8" fill="#1a1a1a"/>
-    <circle cx="64" cy="224" r="8" fill="#1a1a1a"/>
-    <circle cx="192" cy="224" r="8" fill="#1a1a1a"/>
+  <!-- Font Awesome vault icon in yellow (scaled and centered) -->
+  <g transform="translate(256, 256)">
+    <g transform="scale(0.6)">
+      <g transform="translate(-256, -256)">
+        <path fill="#f5c842" d="M464 32H144c-26.51 0-48 21.49-48 48v128H48c-26.51 0-48 21.49-48 48v224c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V80c0-26.51-21.49-48-48-48zm-288 88c0-8.837 7.163-16 16-16h224c8.837 0 16 7.163 16 16v48c0 8.837-7.163 16-16 16H192c-8.837 0-16-7.163-16-16v-48zm304 368H48c-8.837 0-16-7.163-16-16V256c0-8.837 7.163-16 16-16h48v-32c0-8.837 7.163-16 16-16h320c8.837 0 16 7.163 16 16v272c0 8.837-7.163 16-16 16zM240 392c0 4.418-3.582 8-8 8h-32v32c0 4.418-3.582 8-8 8H88c-4.418 0-8-3.582-8-8v-32H48c-4.418 0-8-3.582-8-8v-104c0-4.418 3.582-8 8-8h32v-32c0-4.418 3.582-8 8-8h104c4.418 0 8 3.582 8 8v32h32c4.418 0 8 3.582 8 8v104zM144 336c-22.091 0-40-17.909-40-40s17.909-40 40-40 40 17.909 40 40-17.909 40-40 40zm128 112h192c8.837 0 16-7.163 16-16V272c0-8.837-7.163-16-16-16H272c-8.837 0-16 7.163-16 16v160c0 8.837 7.163 16 16 16zm32-144h128c8.837 0 16 7.163 16 16v32c0 8.837-7.163 16-16 16H304c-8.837 0-16-7.163-16-16v-32c0-8.837 7.163-16 16-16zm0 80h128c8.837 0 16 7.163 16 16v16c0 8.837-7.163 16-16 16H304c-8.837 0-16-7.163-16-16v-16c0-8.837 7.163-16 16-16z"/>
+      </g>
+    </g>
   </g>
 </svg>

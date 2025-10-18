@@ -277,15 +277,18 @@ export default function RetrievePage() {
   if (!isConnected) {
     return (
       <main className="section-padding">
-        <div className="container-minimal max-w-2xl">
+        <div className="container-minimal max-w-2xl mx-auto">
           <div className="card p-12 text-center">
             <div className="mb-6 flex justify-center">
               <div className="w-16 h-16 rounded-full bg-[var(--color-secondary)] flex items-center justify-center">
                 <Icon name="alert" size={32} className="text-[var(--color-foreground)]" />
               </div>
             </div>
-            <h2 className="mb-4">Wallet Not Connected</h2>
-            <p className="mb-8">Connect your wallet to retrieve encrypted files</p>
+            <h2 className="mb-4">Connect Your Wallet</h2>
+            <p className="mb-8 text-muted">
+              To retrieve and decrypt shared datasets, please connect your Ethereum wallet. 
+              Access is granted through ZAMA's ACL system based on your wallet address.
+            </p>
             <div className="flex justify-center">
               <RainbowKitCustomConnectButton />
             </div>
@@ -297,13 +300,31 @@ export default function RetrievePage() {
 
   return (
     <main className="section-padding">
-      <div className="container-minimal max-w-4xl">
+      <div className="container-minimal max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="mb-4">Retrieve File</h1>
-          <p className="text-muted">
-            Access and decrypt files shared with you
+          <div className="flex items-center gap-3 mb-4">
+            <Icon name="download" size={32} className="text-[var(--color-primary)]" />
+            <h1>Retrieve Shared Dataset</h1>
+          </div>
+          <p className="text-muted text-lg">
+            Access datasets that have been shared with you. Decryption is only possible if the data owner 
+            has granted access to your wallet address through ZAMA's secure ACL system.
           </p>
+        </div>
+
+        {/* Trust & Security Info Banner */}
+        <div className="card p-6 mb-8 bg-[var(--color-surface)] border-l-4 border-[var(--color-primary)]">
+          <div className="flex items-start gap-4">
+            <Icon name="shield" size={24} className="text-[var(--color-primary)] flex-shrink-0 mt-1" />
+            <div>
+              <h4 className="mb-2 font-semibold">Secure & Transparent Access</h4>
+              <p className="text-sm text-muted">
+                The decryption key is retrieved from the blockchain using ZAMA's Fully Homomorphic Encryption. 
+                Your access is verified cryptographically, ensuring the data owner's privacy preferences are always respected.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -340,18 +361,28 @@ export default function RetrievePage() {
 
           {/* Input CID Section */}
           <div className="card p-8">
-            <h3 className="mb-6">Enter File CID</h3>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--color-primary)] text-black font-bold">
+                1
+              </div>
+              <h3>Enter Dataset Identifier</h3>
+            </div>
+            
+            <p className="text-sm text-muted mb-6">
+              Paste the IPFS Content Identifier (CID) from the share link you received. 
+              This identifier points to the encrypted dataset on IPFS.
+            </p>
             
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-3">
-                  IPFS Content Identifier
+                  IPFS Content Identifier (CID)
                 </label>
                 <input
                   type="text"
                   value={inputCID}
                   onChange={(e) => setInputCID(e.target.value)}
-                  placeholder="Enter IPFS CID..."
+                  placeholder="Enter IPFS CID from the share link..."
                   className="input-field"
                   disabled={isProcessing}
                 />
@@ -365,25 +396,33 @@ export default function RetrievePage() {
                 {isProcessing ? (
                   <>
                     <Icon name="loading" size={18} className="text-[#0f0f0f]" />
-                    Processing...
+                    Verifying Access & Decrypting...
                   </>
                 ) : fhevmStatus !== "ready" ? (
                   <>
                     <Icon name="loading" size={18} className="text-[#0f0f0f]" />
-                    Waiting for FHEVM...
+                    Initializing FHEVM SDK...
                   </>
                 ) : !ethersSigner ? (
                   <>
                     <Icon name="loading" size={18} className="text-[#0f0f0f]" />
-                    Waiting for Wallet...
+                    Connecting to Wallet...
                   </>
                 ) : (
                   <>
                     <Icon name="unlock" size={18} />
-                    Retrieve & Decrypt File
+                    Retrieve & Decrypt Dataset
                   </>
                 )}
               </button>
+
+              <div className="bg-[var(--color-secondary)] p-4 rounded-lg">
+                <p className="text-xs text-muted">
+                  <Icon name="info" size={14} className="inline mr-1" />
+                  The system will check your access permissions on-chain. If authorized, the decryption key 
+                  will be retrieved using FHE and the dataset will be decrypted on your device.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -391,24 +430,26 @@ export default function RetrievePage() {
           {fileMetadata && currentCID && (
             <div className="card p-8">
               <div className="flex items-center gap-3 mb-6">
-                <Icon name="file" size={24} />
-                <h3>File Information</h3>
+                <Icon name="file" size={24} className="text-[var(--color-primary)]" />
+                <h3>Dataset Information</h3>
               </div>
               
               <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-muted mb-1">CID</p>
+                <div className="bg-[var(--color-secondary)] p-4 rounded-lg">
+                  <p className="text-xs text-muted mb-2">IPFS Content Identifier</p>
                   <p className="text-sm break-all font-mono">{currentCID}</p>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-muted mb-1">Owner</p>
-                  <p className="text-sm font-mono">{fileMetadata.owner}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted mb-1">Uploaded</p>
-                  <p className="text-sm">
-                    {new Date(Number(fileMetadata.timestamp) * 1000).toLocaleString()}
-                  </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-[var(--color-secondary)] p-4 rounded-lg">
+                    <p className="text-xs text-muted mb-2">Owner</p>
+                    <p className="text-sm font-mono">{fileMetadata.owner}</p>
+                  </div>
+                  <div className="bg-[var(--color-secondary)] p-4 rounded-lg">
+                    <p className="text-xs text-muted mb-2">Upload Date</p>
+                    <p className="text-sm">
+                      {new Date(Number(fileMetadata.timestamp) * 1000).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -444,17 +485,26 @@ export default function RetrievePage() {
             <div className="card p-10">
               <div className="text-center">
                 <div className="mb-6 flex justify-center">
-                  <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
-                    <Icon name="x" size={32} className="text-red-600" />
+                  <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center">
+                    <Icon name="lock" size={36} className="text-red-600" />
                   </div>
                 </div>
-                <h3 className="mb-3 text-red-900">Access Denied</h3>
-                <p className="text-sm text-red-700 mb-2">
-                  You don't have permission to decrypt this file.
+                <h3 className="mb-4 text-red-900 text-2xl">Access Not Granted</h3>
+                <p className="text-sm text-red-700 mb-3 max-w-md mx-auto">
+                  Your wallet address does not have permission to decrypt this dataset. 
+                  The data owner must explicitly grant you access through the platform.
                 </p>
-                <p className="text-xs text-red-600">
-                  Please contact the file owner to request access.
+                <p className="text-xs text-red-600 mb-6">
+                  Please contact the dataset owner and request that they add your wallet address 
+                  ({address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'your address'}) 
+                  to the authorized recipients list.
                 </p>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md mx-auto">
+                  <p className="text-xs text-red-800">
+                    <Icon name="shield" size={14} className="inline mr-1" />
+                    This ensures your privacy and data sovereignty - only explicitly trusted parties can access sensitive training data.
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -473,26 +523,63 @@ export default function RetrievePage() {
           {decryptedContent && hasAccess && (
             <div className="card p-8">
               <div className="flex items-center gap-3 mb-6">
-                <Icon name="file" size={24} />
-                <h3>File Content</h3>
+                <div className="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 text-white">
+                  <Icon name="check" size={20} />
+                </div>
+                <h3>Dataset Content</h3>
               </div>
               
-              <div className="card bg-[var(--color-secondary)] p-6 mb-6">
-                <pre className="text-sm whitespace-pre-wrap font-mono overflow-auto max-h-96">
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-800">
+                  <Icon name="unlock" size={16} className="inline mr-2" />
+                  Successfully decrypted! This data has been shared with you for AI training or research purposes.
+                </p>
+              </div>
+              
+              <div className="card bg-[var(--color-secondary)] p-6 mb-6 border-2 border-[var(--color-border)]">
+                <pre className="text-sm whitespace-pre-wrap font-mono overflow-auto max-h-96 leading-relaxed">
                   {decryptedContent}
                 </pre>
               </div>
 
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(decryptedContent);
-                  notification.success("Content copied to clipboard!");
-                }}
-                className="btn-outline flex items-center gap-2"
-              >
-                <Icon name="copy" size={18} />
-                Copy Content
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(decryptedContent);
+                    notification.success("Dataset content copied to clipboard!");
+                  }}
+                  className="btn-outline flex items-center gap-2"
+                >
+                  <Icon name="copy" size={18} />
+                  Copy Content
+                </button>
+                
+                <button
+                  onClick={() => {
+                    const blob = new Blob([decryptedContent], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `dataset-${currentCID?.slice(0, 8)}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    notification.success("Dataset downloaded!");
+                  }}
+                  className="btn-outline flex items-center gap-2"
+                >
+                  <Icon name="download" size={18} />
+                  Download File
+                </button>
+              </div>
+
+              <div className="mt-6 bg-[var(--color-secondary)] p-4 rounded-lg">
+                <p className="text-xs text-muted">
+                  <Icon name="info" size={14} className="inline mr-1" />
+                  Remember to use this data responsibly and in accordance with any agreements you have with the data owner.
+                </p>
+              </div>
             </div>
           )}
         </div>
