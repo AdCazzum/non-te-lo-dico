@@ -1,8 +1,9 @@
 {
   "buildCommand": "cd ../.. && pnpm install && pnpm sdk:build && cd packages/nextjs && pnpm build",
-  "installCommand": "pnpm install",
+  "installCommand": "cd ../.. && pnpm install",
   "framework": "nextjs",
   "outputDirectory": ".next",
+  "monorepo": true,
   "rewrites": [
     {
       "source": "/(.*)",
