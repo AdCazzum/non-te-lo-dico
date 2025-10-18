@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useFhevm, useInMemoryStorage } from "@fhevm-sdk";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useFhevm, useInMemoryStorage, useFHEDecrypt } from "@fhevm-sdk";
 import { useAccount } from "wagmi";
 import { useSearchParams } from "next/navigation";
 import { RainbowKitCustomConnectButton } from "~~/components/helper/RainbowKitCustomConnectButton";
@@ -9,6 +9,7 @@ import { useFHEIPFSStorage } from "~~/hooks/useFHEIPFSStorage";
 import { useIPFSDownload } from "~~/hooks/useIPFS";
 import { decryptFile, arrayBufferToText } from "~~/utils/crypto";
 import { notification } from "~~/utils/helper/notification";
+import { useWagmiEthers } from "~~/hooks/wagmi/useWagmiEthers";
 import Link from "next/link";
 
 export default function RetrievePage() {
@@ -37,6 +38,7 @@ export default function RetrievePage() {
   const storage = useFHEIPFSStorage(fhevmInstance);
   const { downloadFromIPFS, isDownloading } = useIPFSDownload();
   const { storage: decryptionStorage } = useInMemoryStorage();
+  const { ethersSigner } = useWagmiEthers();
 
   const [inputCID, setInputCID] = useState(cidFromUrl || "");
   const [currentCID, setCurrentCID] = useState<string | null>(null);
@@ -46,12 +48,42 @@ export default function RetrievePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Refs to prevent multiple processing
+  const hasTriggeredDecrypt = useRef(false);
+  const processedHandles = useRef<Set<string>>(new Set());
+
+  // Decryption state - following ZAMA SDK pattern
+  const [decryptRequests, setDecryptRequests] = useState<
+    Array<{ handle: string; contractAddress: `0x${string}` }>
+  >([]);
+
+  // useFHEDecrypt hook - following ZAMA SDK pattern
+  const {
+    decrypt,
+    results: decryptResults,
+    isDecrypting,
+    error: decryptError,
+    message: decryptMessage,
+  } = useFHEDecrypt({
+    instance: fhevmInstance,
+    ethersSigner,
+    fhevmDecryptionSignatureStorage: decryptionStorage,
+    chainId,
+    requests: decryptRequests,
+  });
+
   // Auto-load file from URL
   useEffect(() => {
-    if (cidFromUrl && isConnected && fhevmInstance) {
-      handleRetrieve(cidFromUrl);
+    // Wait for everything to be ready before auto-loading
+    if (cidFromUrl && isConnected && fhevmInstance && fhevmStatus === "ready" && ethersSigner) {
+      // Small delay to ensure SDK is fully initialized
+      const timer = setTimeout(() => {
+        handleRetrieve(cidFromUrl);
+      }, 500);
+      
+      return () => clearTimeout(timer);
     }
-  }, [cidFromUrl, isConnected, fhevmInstance]);
+  }, [cidFromUrl, isConnected, fhevmInstance, fhevmStatus, ethersSigner]);
 
   // Handle file retrieval
   const handleRetrieve = async (cid?: string) => {
@@ -72,10 +104,29 @@ export default function RetrievePage() {
       return;
     }
 
+    if (fhevmStatus !== "ready") {
+      notification.error("FHEVM is still loading. Please wait...");
+      return;
+    }
+
+    if (!storage.contractAddress) {
+      notification.error("Contract not initialized");
+      return;
+    }
+
+    if (!ethersSigner) {
+      notification.error("Wallet signer not available");
+      return;
+    }
+
+    // Reset state for new retrieval
     setIsProcessing(true);
     setError(null);
     setDecryptedContent(null);
     setHasAccess(null);
+    setDecryptRequests([]);
+    hasTriggeredDecrypt.current = false;
+    processedHandles.current.clear();
 
     try {
       // Step 1: Check if file exists
@@ -104,39 +155,124 @@ export default function RetrievePage() {
       setHasAccess(true);
       notification.info("Access granted! Decrypting key...");
 
-      // Step 4: Decrypt the encryption key using FHEVM
-      // TODO: Implement proper FHEVM decryption
-      // For now this is a placeholder - need to implement proper decryption flow
-      notification.error("Decryption feature needs to be implemented with proper FHEVM flow");
-      throw new Error("Decryption not yet fully implemented");
+      // Debug logging (uncomment if needed)
+      // console.log("Encrypted key handle received:", encryptedKeyHandle);
+      // console.log("Type of handle:", typeof encryptedKeyHandle);
+      // console.log("Is string:", typeof encryptedKeyHandle === 'string');
 
-      // Step 5: Download encrypted file from IPFS (commented out until decrypt is implemented)
-      /*
-      notification.info("Downloading file from IPFS...");
-      const encryptedContent = await downloadFromIPFS(cidToUse);
-      
-      if (!encryptedContent) {
-        throw new Error("Failed to download file from IPFS");
+      // Validate that we have a proper hex string
+      if (typeof encryptedKeyHandle !== 'string') {
+        throw new Error(`Invalid handle type: expected string, got ${typeof encryptedKeyHandle}`);
       }
 
-      // Step 6: Decrypt the file content
-      notification.info("Decrypting file...");
-      const decryptedData = await decryptFile(encryptedContent, decryptedKey);
-      const textContent = arrayBufferToText(decryptedData);
-      
-      setDecryptedContent(textContent);
-      notification.success("File decrypted successfully!");
-      */
+      if (!encryptedKeyHandle.startsWith('0x')) {
+        throw new Error(`Invalid handle format: expected hex string starting with 0x, got ${encryptedKeyHandle}`);
+      }
+
+      // Step 4: Decrypt the encryption key using FHEVM - following ZAMA SDK pattern
+      // Set the decrypt request
+      setDecryptRequests([
+        {
+          handle: encryptedKeyHandle,
+          contractAddress: storage.contractAddress as `0x${string}`,
+        },
+      ]);
+
+      // Reset the trigger flag for new decryption
+      hasTriggeredDecrypt.current = false;
+
+      // Trigger decryption (this will happen in the useEffect below)
 
     } catch (error: any) {
       console.error("Retrieve error:", error);
       const errorMessage = error?.message || "Failed to retrieve file";
       setError(errorMessage);
       notification.error(errorMessage);
-    } finally {
       setIsProcessing(false);
     }
   };
+
+  // Effect to trigger decryption when requests are set
+  useEffect(() => {
+    if (decryptRequests.length > 0 && !isDecrypting && ethersSigner && !hasTriggeredDecrypt.current) {
+      // Debug logging (uncomment if needed)
+      // console.log("🔐 Starting decryption process...");
+      // console.log("Chain ID:", chainId);
+      // console.log("FHEVM Status:", fhevmStatus);
+      // console.log("Decrypt Requests:", decryptRequests);
+      // console.log("Signer available:", !!ethersSigner);
+      // console.log("Instance available:", !!fhevmInstance);
+      
+      hasTriggeredDecrypt.current = true;
+      decrypt();
+    }
+  }, [decryptRequests, isDecrypting, decrypt, ethersSigner]);
+
+  // Effect to handle decryption results
+  useEffect(() => {
+    const processDecryptedKey = async () => {
+      if (!currentCID || !decryptRequests.length) return;
+
+      const handle = decryptRequests[0].handle;
+      const decryptedKey = decryptResults[handle];
+
+      // Check if we've already processed this handle
+      if (decryptedKey === undefined || processedHandles.current.has(handle)) {
+        return;
+      }
+
+      // Mark this handle as processed
+      processedHandles.current.add(handle);
+
+      try {
+        // Convert bigint to number (our encryption key is a 32-bit uint)
+        let encryptionKey: number;
+        
+        if (typeof decryptedKey === 'bigint') {
+          encryptionKey = Number(decryptedKey);
+        } else if (typeof decryptedKey === 'string') {
+          encryptionKey = parseInt(decryptedKey, 10);
+        } else if (typeof decryptedKey === 'boolean') {
+          throw new Error("Unexpected boolean value for encryption key");
+        } else {
+          encryptionKey = decryptedKey as number;
+        }
+
+        notification.success("Key decrypted successfully!");
+        notification.info("Downloading file from IPFS...");
+
+        // Step 5: Download encrypted file from IPFS
+        const encryptedContent = await downloadFromIPFS(currentCID);
+        
+        if (!encryptedContent) {
+          throw new Error("Failed to download file from IPFS");
+        }
+
+        // Step 6: Decrypt the file content
+        notification.info("Decrypting file...");
+        const decryptedData = await decryptFile(encryptedContent, encryptionKey);
+        const textContent = arrayBufferToText(decryptedData);
+        
+        setDecryptedContent(textContent);
+        notification.success("File decrypted successfully!");
+
+        // Clear decrypt requests
+        setDecryptRequests([]);
+
+      } catch (error: any) {
+        console.error("Decryption error:", error);
+        const errorMessage = error?.message || "Failed to decrypt file";
+        setError(errorMessage);
+        
+        // Generic error notification
+        notification.error(`❌ Decryption Error: ${errorMessage}`);
+      } finally {
+        setIsProcessing(false);
+      }
+    };
+
+    processDecryptedKey();
+  }, [decryptResults, currentCID, decryptRequests]);
 
   if (!isConnected) {
     return (
@@ -192,7 +328,13 @@ export default function RetrievePage() {
 
       {fhevmStatus === "loading" && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">🔄 Initializing FHEVM...</p>
+          <p className="text-sm text-blue-800">🔄 Initializing FHEVM SDK... Please wait.</p>
+        </div>
+      )}
+
+      {fhevmStatus === "ready" && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <p className="text-sm text-green-800">✅ FHEVM SDK Ready</p>
         </div>
       )}
 
@@ -217,10 +359,16 @@ export default function RetrievePage() {
 
           <button
             onClick={() => handleRetrieve()}
-            disabled={!inputCID || isProcessing || !fhevmInstance}
+            disabled={!inputCID || isProcessing || fhevmStatus !== "ready" || !ethersSigner}
             className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
           >
-            {isProcessing ? "Processing..." : "Retrieve & Decrypt File"}
+            {isProcessing 
+              ? "Processing..." 
+              : fhevmStatus !== "ready" 
+              ? "Waiting for FHEVM..." 
+              : !ethersSigner
+              ? "Waiting for Wallet..."
+              : "Retrieve & Decrypt File"}
           </button>
         </div>
       </div>
@@ -246,6 +394,25 @@ export default function RetrievePage() {
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Decryption Progress */}
+      {isDecrypting && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="flex items-center justify-center space-x-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <p className="text-blue-800 font-medium">
+              {decryptMessage || "Decrypting encryption key with FHEVM..."}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Decryption Error */}
+      {decryptError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-sm text-red-800">❌ Decryption Error: {decryptError}</p>
         </div>
       )}
 

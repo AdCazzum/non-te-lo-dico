@@ -1,11 +1,10 @@
-"use client";
-
 import { useState, useCallback, useEffect } from "react";
 import { useAccount, usePublicClient, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { useDeployedContractInfo } from "~~/hooks/helper";
 import { FhevmInstance } from "@fhevm-sdk";
 import { notification } from "~~/utils/helper/notification";
 import type { AllowedChainIds } from "~~/utils/helper/networks";
+import { toHex } from "viem";
 
 export interface FileMetadata {
   cid: string;
@@ -87,12 +86,31 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         input.add32(encryptionKey);
         const encryptedInput = await input.encrypt();
 
+        console.log("Encrypted input:", encryptedInput);
+        console.log("Handle type:", typeof encryptedInput.handles[0]);
+        console.log("Handle value:", encryptedInput.handles[0]);
+        console.log("InputProof type:", typeof encryptedInput.inputProof);
+        console.log("InputProof value:", encryptedInput.inputProof);
+
+        // Convert handles and inputProof to proper hex format
+        // handles[0] might be Uint8Array or already a string
+        const encryptedHandle = typeof encryptedInput.handles[0] === 'string'
+          ? encryptedInput.handles[0]
+          : toHex(encryptedInput.handles[0]);
+        
+        const inputProof = typeof encryptedInput.inputProof === 'string'
+          ? encryptedInput.inputProof
+          : toHex(encryptedInput.inputProof);
+
+        console.log("Converted handle:", encryptedHandle);
+        console.log("Converted inputProof:", inputProof);
+
         // Call storeFile
         const hash = await writeContractAsync({
           address: contractInfo.address as `0x${string}`,
           abi: contractInfo.abi,
           functionName: "storeFile",
-          args: [cid, encryptedInput.handles[0], encryptedInput.inputProof],
+          args: [cid, encryptedHandle, inputProof],
         });
 
         notification.info("Transaction submitted. Waiting for confirmation...");
@@ -163,7 +181,43 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
           args: [cid],
         });
 
-        return encryptedKey as string;
+        console.log("Raw encrypted key from contract:", encryptedKey, "Type:", typeof encryptedKey);
+        console.log("Is Array?", Array.isArray(encryptedKey));
+        console.log("Constructor:", encryptedKey?.constructor?.name);
+        console.log("Stringified:", JSON.stringify(encryptedKey));
+
+        // euint32 is returned as bytes32, which viem gives us as a hex string
+        // We need to ensure it's properly formatted for useFHEDecrypt
+        let hexHandle: string;
+        
+        if (typeof encryptedKey === 'string') {
+          // If it's already a string, ensure it's properly formatted
+          hexHandle = encryptedKey.startsWith('0x') ? encryptedKey : `0x${encryptedKey}`;
+        } else if (typeof encryptedKey === 'bigint') {
+          hexHandle = toHex(encryptedKey, { size: 32 });
+        } else if (typeof encryptedKey === 'object' && encryptedKey !== null) {
+          // If it's an object or array, try to extract the value
+          const value = Array.isArray(encryptedKey) ? encryptedKey[0] : (encryptedKey as any).value || encryptedKey;
+          if (typeof value === 'string') {
+            hexHandle = value.startsWith('0x') ? value : `0x${value}`;
+          } else if (typeof value === 'bigint') {
+            hexHandle = toHex(value, { size: 32 });
+          } else {
+            // Last resort: convert to string
+            hexHandle = String(value);
+            if (!hexHandle.startsWith('0x')) {
+              hexHandle = `0x${hexHandle}`;
+            }
+          }
+        } else {
+          // Fallback - convert to hex
+          hexHandle = toHex(encryptedKey as any);
+        }
+        
+        console.log("Converted hex handle:", hexHandle);
+        console.log("Handle length:", hexHandle.length, "Expected: 66 (0x + 64 hex chars)");
+        
+        return hexHandle;
       } catch (error: any) {
         console.error("Error getting encrypted key:", error);
         notification.error(error?.message || "Failed to get key. You may not have access.");

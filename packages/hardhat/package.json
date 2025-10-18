@@ -81,6 +81,8 @@
     "build:ts": "tsc --project tsconfig.json",
     "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain",
     "chain": "hardhat node --network hardhat --no-deploy",
+    "node:fhevm": "hardhat node",
+    "deploy:local": "hardhat deploy --network localhost",
     "deploy:localhost": "hardhat deploy --network localhost",
     "deploy:sepolia": "hardhat deploy --network sepolia",
     "verify:sepolia": "hardhat verify --network sepolia"

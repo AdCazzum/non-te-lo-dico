@@ -80,6 +80,16 @@ export const useFHEDecrypt = (params: {
         setMessage("Call FHEVM userDecrypt...");
 
         const mutableReqs = thisRequests.map(r => ({ handle: r.handle, contractAddress: r.contractAddress }));
+        
+        // Debug logging (uncomment if needed)
+        // console.log("📡 Calling FHEVM userDecrypt with:");
+        // console.log("  - Requests:", mutableReqs);
+        // console.log("  - Signature:", sig.signature.substring(0, 20) + "...");
+        // console.log("  - User Address:", sig.userAddress);
+        // console.log("  - Contract Addresses:", sig.contractAddresses);
+        // console.log("  - Start Timestamp:", sig.startTimestamp);
+        // console.log("  - Duration Days:", sig.durationDays);
+
         let res: Record<string, string | bigint | boolean> = {};
         try {
           res = await instance.userDecrypt(
@@ -92,7 +102,11 @@ export const useFHEDecrypt = (params: {
             sig.startTimestamp,
             sig.durationDays,
           );
+          // console.log("✅ Decryption successful! Result:", res);
         } catch (e) {
+          // console.error("❌ Decryption failed:", e);
+          // console.error("Error details:", JSON.stringify(e, null, 2));
+          
           const err = e as unknown as { name?: string; message?: string };
           const code = err && typeof err === "object" && "name" in (err as any) ? (err as any).name : "DECRYPT_ERROR";
           const msg = err && typeof err === "object" && "message" in (err as any) ? (err as any).message : "Decryption failed";
