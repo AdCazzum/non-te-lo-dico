@@ -5,9 +5,9 @@
  * These definitions are used to derive the types needed in the custom fhevm hooks, for example.
  * This script should run as the last deploy script.
  */
-
 import * as fs from "fs";
 import * as prettier from "prettier";
+
 // Note: This script does not need Hardhat's DeployFunction typing
 
 const generatedContractComment = `

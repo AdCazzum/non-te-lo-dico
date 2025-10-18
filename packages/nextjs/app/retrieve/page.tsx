@@ -1,17 +1,16 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
-import { useFhevm, useInMemoryStorage, useFHEDecrypt } from "@fhevm-sdk";
-import { useAccount } from "wagmi";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useFHEDecrypt, useFhevm, useInMemoryStorage } from "@fhevm-sdk";
+import { useAccount } from "wagmi";
+import { Icon } from "~~/components/Icon";
 import { RainbowKitCustomConnectButton } from "~~/components/helper/RainbowKitCustomConnectButton";
 import { useFHEIPFSStorage } from "~~/hooks/useFHEIPFSStorage";
 import { useIPFSDownload } from "~~/hooks/useIPFS";
-import { decryptFile, arrayBufferToText } from "~~/utils/crypto";
-import { notification } from "~~/utils/helper/notification";
 import { useWagmiEthers } from "~~/hooks/wagmi/useWagmiEthers";
-import Link from "next/link";
-import { Icon } from "~~/components/Icon";
+import { arrayBufferToText, decryptFile } from "~~/utils/crypto";
+import { notification } from "~~/utils/helper/notification";
 
 export default function RetrievePage() {
   const searchParams = useSearchParams();
@@ -37,7 +36,7 @@ export default function RetrievePage() {
   });
 
   const storage = useFHEIPFSStorage(fhevmInstance);
-  const { downloadFromIPFS, isDownloading } = useIPFSDownload();
+  const { downloadFromIPFS } = useIPFSDownload();
   const { storage: decryptionStorage } = useInMemoryStorage();
   const { ethersSigner } = useWagmiEthers();
 
@@ -54,9 +53,7 @@ export default function RetrievePage() {
   const processedHandles = useRef<Set<string>>(new Set());
 
   // Decryption state - following ZAMA SDK pattern
-  const [decryptRequests, setDecryptRequests] = useState<
-    Array<{ handle: string; contractAddress: `0x${string}` }>
-  >([]);
+  const [decryptRequests, setDecryptRequests] = useState<Array<{ handle: string; contractAddress: `0x${string}` }>>([]);
 
   // useFHEDecrypt hook - following ZAMA SDK pattern
   const {
@@ -73,6 +70,114 @@ export default function RetrievePage() {
     requests: decryptRequests,
   });
 
+  // Handle file retrieval
+  const handleRetrieve = useCallback(
+    async (cid?: string) => {
+      const cidToUse = cid || inputCID;
+
+      if (!cidToUse) {
+        notification.error("Please enter a CID");
+        return;
+      }
+
+      if (!address) {
+        notification.error("Please connect your wallet");
+        return;
+      }
+
+      if (!fhevmInstance) {
+        notification.error("FHEVM not initialized");
+        return;
+      }
+
+      if (fhevmStatus !== "ready") {
+        notification.error("FHEVM is still loading. Please wait...");
+        return;
+      }
+
+      if (!storage.contractAddress) {
+        return;
+      }
+
+      if (!ethersSigner) {
+        notification.error("Wallet signer not available");
+        return;
+      }
+
+      // Reset state for new retrieval
+      setIsProcessing(true);
+      setError(null);
+      setDecryptedContent(null);
+      setHasAccess(null);
+      setDecryptRequests([]);
+      hasTriggeredDecrypt.current = false;
+      processedHandles.current.clear();
+
+      try {
+        // Step 1: Check if file exists
+        const exists = await storage.fileExists(cidToUse);
+        if (!exists) {
+          throw new Error("File not found on blockchain");
+        }
+
+        // Step 2: Get file metadata
+        const metadata = await storage.getFileMetadata(cidToUse);
+        if (!metadata) {
+          throw new Error("Failed to retrieve file metadata");
+        }
+        setFileMetadata(metadata);
+        setCurrentCID(cidToUse);
+
+        // Step 3: Try to get encrypted key (will fail if no access)
+        notification.info("Checking access permissions...");
+        const encryptedKeyHandle = await storage.getEncryptedKey(cidToUse);
+
+        if (!encryptedKeyHandle) {
+          setHasAccess(false);
+          throw new Error("Access denied: You don't have permission to decrypt this file");
+        }
+
+        setHasAccess(true);
+        notification.info("Access granted! Decrypting key...");
+
+        // Debug logging (uncomment if needed)
+        // console.log("Encrypted key handle received:", encryptedKeyHandle);
+        // console.log("Type of handle:", typeof encryptedKeyHandle);
+        // console.log("Is string:", typeof encryptedKeyHandle === 'string');
+
+        // Validate that we have a proper hex string
+        if (typeof encryptedKeyHandle !== "string") {
+          throw new Error(`Invalid handle type: expected string, got ${typeof encryptedKeyHandle}`);
+        }
+
+        if (!encryptedKeyHandle.startsWith("0x")) {
+          throw new Error(`Invalid handle format: expected hex string starting with 0x, got ${encryptedKeyHandle}`);
+        }
+
+        // Step 4: Decrypt the encryption key using FHEVM - following ZAMA SDK pattern
+        // Set the decrypt request
+        setDecryptRequests([
+          {
+            handle: encryptedKeyHandle,
+            contractAddress: storage.contractAddress as `0x${string}`,
+          },
+        ]);
+
+        // Reset the trigger flag for new decryption
+        hasTriggeredDecrypt.current = false;
+
+        // Trigger decryption (this will happen in the useEffect below)
+      } catch (error: any) {
+        console.error("Retrieve error:", error);
+        const errorMessage = error?.message || "Failed to retrieve file";
+        setError(errorMessage);
+        notification.error(errorMessage);
+        setIsProcessing(false);
+      }
+    },
+    [inputCID, address, fhevmInstance, fhevmStatus, storage, ethersSigner],
+  );
+
   // Auto-load file from URL
   useEffect(() => {
     // Wait for everything to be ready before auto-loading
@@ -81,116 +186,10 @@ export default function RetrievePage() {
       const timer = setTimeout(() => {
         handleRetrieve(cidFromUrl);
       }, 1000);
-      
+
       return () => clearTimeout(timer);
     }
-  }, [cidFromUrl, isConnected, fhevmInstance, fhevmStatus, ethersSigner]);
-
-  // Handle file retrieval
-  const handleRetrieve = async (cid?: string) => {
-    const cidToUse = cid || inputCID;
-    
-    if (!cidToUse) {
-      notification.error("Please enter a CID");
-      return;
-    }
-
-    if (!address) {
-      notification.error("Please connect your wallet");
-      return;
-    }
-
-    if (!fhevmInstance) {
-      notification.error("FHEVM not initialized");
-      return;
-    }
-
-    if (fhevmStatus !== "ready") {
-      notification.error("FHEVM is still loading. Please wait...");
-      return;
-    }
-
-    if (!storage.contractAddress) {
-      return;
-    }
-
-    if (!ethersSigner) {
-      notification.error("Wallet signer not available");
-      return;
-    }
-
-    // Reset state for new retrieval
-    setIsProcessing(true);
-    setError(null);
-    setDecryptedContent(null);
-    setHasAccess(null);
-    setDecryptRequests([]);
-    hasTriggeredDecrypt.current = false;
-    processedHandles.current.clear();
-
-    try {
-      // Step 1: Check if file exists
-      const exists = await storage.fileExists(cidToUse);
-      if (!exists) {
-        throw new Error("File not found on blockchain");
-      }
-
-      // Step 2: Get file metadata
-      const metadata = await storage.getFileMetadata(cidToUse);
-      if (!metadata) {
-        throw new Error("Failed to retrieve file metadata");
-      }
-      setFileMetadata(metadata);
-      setCurrentCID(cidToUse);
-
-      // Step 3: Try to get encrypted key (will fail if no access)
-      notification.info("Checking access permissions...");
-      const encryptedKeyHandle = await storage.getEncryptedKey(cidToUse);
-      
-      if (!encryptedKeyHandle) {
-        setHasAccess(false);
-        throw new Error("Access denied: You don't have permission to decrypt this file");
-      }
-
-      setHasAccess(true);
-      notification.info("Access granted! Decrypting key...");
-
-      // Debug logging (uncomment if needed)
-      // console.log("Encrypted key handle received:", encryptedKeyHandle);
-      // console.log("Type of handle:", typeof encryptedKeyHandle);
-      // console.log("Is string:", typeof encryptedKeyHandle === 'string');
-
-      // Validate that we have a proper hex string
-      if (typeof encryptedKeyHandle !== 'string') {
-        throw new Error(`Invalid handle type: expected string, got ${typeof encryptedKeyHandle}`);
-      }
-
-      if (!encryptedKeyHandle.startsWith('0x')) {
-        throw new Error(`Invalid handle format: expected hex string starting with 0x, got ${encryptedKeyHandle}`);
-      }
-
-      // Step 4: Decrypt the encryption key using FHEVM - following ZAMA SDK pattern
-      // Set the decrypt request
-      setDecryptRequests([
-        {
-          handle: encryptedKeyHandle,
-          contractAddress: storage.contractAddress as `0x${string}`,
-        },
-      ]);
-
-      // Reset the trigger flag for new decryption
-      hasTriggeredDecrypt.current = false;
-
-      // Trigger decryption (this will happen in the useEffect below)
-
-    } catch (error: any) {
-      console.error("Retrieve error:", error);
-      const errorMessage = error?.message || "Failed to retrieve file";
-      setError(errorMessage);
-      notification.error(errorMessage);
-      setIsProcessing(false);
-    }
-  };
+  }, [cidFromUrl, isConnected, fhevmInstance, fhevmStatus, ethersSigner, handleRetrieve]);
 
   // Effect to trigger decryption when requests are set
   useEffect(() => {
@@ -202,7 +201,7 @@ export default function RetrievePage() {
       // console.log("Decrypt Requests:", decryptRequests);
       // console.log("Signer available:", !!ethersSigner);
       // console.log("Instance available:", !!fhevmInstance);
-      
+
       hasTriggeredDecrypt.current = true;
       decrypt();
     }
@@ -227,12 +226,12 @@ export default function RetrievePage() {
       try {
         // Convert bigint to number (our encryption key is a 32-bit uint)
         let encryptionKey: number;
-        
-        if (typeof decryptedKey === 'bigint') {
+
+        if (typeof decryptedKey === "bigint") {
           encryptionKey = Number(decryptedKey);
-        } else if (typeof decryptedKey === 'string') {
+        } else if (typeof decryptedKey === "string") {
           encryptionKey = parseInt(decryptedKey, 10);
-        } else if (typeof decryptedKey === 'boolean') {
+        } else if (typeof decryptedKey === "boolean") {
           throw new Error("Unexpected boolean value for encryption key");
         } else {
           encryptionKey = decryptedKey as number;
@@ -243,7 +242,7 @@ export default function RetrievePage() {
 
         // Step 5: Download encrypted file from IPFS
         const encryptedContent = await downloadFromIPFS(currentCID);
-        
+
         if (!encryptedContent) {
           throw new Error("Failed to download file from IPFS");
         }
@@ -252,18 +251,17 @@ export default function RetrievePage() {
         notification.info("Decrypting file...");
         const decryptedData = await decryptFile(encryptedContent, encryptionKey);
         const textContent = arrayBufferToText(decryptedData);
-        
+
         setDecryptedContent(textContent);
         notification.success("File decrypted successfully!");
 
         // Clear decrypt requests
         setDecryptRequests([]);
-
       } catch (error: any) {
         console.error("Decryption error:", error);
         const errorMessage = error?.message || "Failed to decrypt file";
         setError(errorMessage);
-        
+
         // Generic error notification
         notification.error(`❌ Decryption Error: ${errorMessage}`);
       } finally {
@@ -272,7 +270,7 @@ export default function RetrievePage() {
     };
 
     processDecryptedKey();
-  }, [decryptResults, currentCID, decryptRequests]);
+  }, [decryptResults, currentCID, decryptRequests, downloadFromIPFS]);
 
   if (!isConnected) {
     return (
@@ -286,8 +284,8 @@ export default function RetrievePage() {
             </div>
             <h2 className="mb-4">Connect Your Wallet</h2>
             <p className="mb-8 text-muted">
-              To retrieve and decrypt shared datasets, please connect your Ethereum wallet. 
-              Access is granted through ZAMA's ACL system based on your wallet address.
+              To retrieve and decrypt shared datasets, please connect your Ethereum wallet. Access is granted through
+              ZAMA&apos;s ACL system based on your wallet address.
             </p>
             <div className="flex justify-center">
               <RainbowKitCustomConnectButton />
@@ -308,8 +306,8 @@ export default function RetrievePage() {
             <h1>Retrieve Shared Dataset</h1>
           </div>
           <p className="text-muted text-lg">
-            Access datasets that have been shared with you. Decryption is only possible if the data owner 
-            has granted access to your wallet address through ZAMA's secure ACL system.
+            Access datasets that have been shared with you. Decryption is only possible if the data owner has granted
+            access to your wallet address through ZAMA&apos;s secure ACL system.
           </p>
         </div>
 
@@ -320,8 +318,9 @@ export default function RetrievePage() {
             <div>
               <h4 className="mb-2 font-semibold">Secure & Transparent Access</h4>
               <p className="text-sm text-muted">
-                The decryption key is retrieved from the blockchain using ZAMA's Fully Homomorphic Encryption. 
-                Your access is verified cryptographically, ensuring the data owner's privacy preferences are always respected.
+                The decryption key is retrieved from the blockchain using ZAMA&apos;s Fully Homomorphic Encryption. Your
+                access is verified cryptographically, ensuring the data owner&apos;s privacy preferences are always
+                respected.
               </p>
             </div>
           </div>
@@ -367,21 +366,19 @@ export default function RetrievePage() {
               </div>
               <h3>Enter Dataset Identifier</h3>
             </div>
-            
+
             <p className="text-sm text-muted mb-6">
-              Paste the IPFS Content Identifier (CID) from the share link you received. 
-              This identifier points to the encrypted dataset on IPFS.
+              Paste the IPFS Content Identifier (CID) from the share link you received. This identifier points to the
+              encrypted dataset on IPFS.
             </p>
-            
+
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-3">
-                  IPFS Content Identifier (CID)
-                </label>
+                <label className="block text-sm font-medium mb-3">IPFS Content Identifier (CID)</label>
                 <input
                   type="text"
                   value={inputCID}
-                  onChange={(e) => setInputCID(e.target.value)}
+                  onChange={e => setInputCID(e.target.value)}
                   placeholder="Enter IPFS CID from the share link..."
                   className="input-field"
                   disabled={isProcessing}
@@ -419,8 +416,8 @@ export default function RetrievePage() {
               <div className="bg-[var(--color-secondary)] p-4 rounded-lg">
                 <p className="text-xs text-muted">
                   <Icon name="info" size={14} className="inline mr-1" />
-                  The system will check your access permissions on-chain. If authorized, the decryption key 
-                  will be retrieved using FHE and the dataset will be decrypted on your device.
+                  The system will check your access permissions on-chain. If authorized, the decryption key will be
+                  retrieved using FHE and the dataset will be decrypted on your device.
                 </p>
               </div>
             </div>
@@ -433,7 +430,7 @@ export default function RetrievePage() {
                 <Icon name="file" size={24} className="text-[var(--color-primary)]" />
                 <h3>Dataset Information</h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="bg-[var(--color-secondary)] p-4 rounded-lg">
                   <p className="text-xs text-muted mb-2">IPFS Content Identifier</p>
@@ -446,9 +443,7 @@ export default function RetrievePage() {
                   </div>
                   <div className="bg-[var(--color-secondary)] p-4 rounded-lg">
                     <p className="text-xs text-muted mb-2">Upload Date</p>
-                    <p className="text-sm">
-                      {new Date(Number(fileMetadata.timestamp) * 1000).toLocaleString()}
-                    </p>
+                    <p className="text-sm">{new Date(Number(fileMetadata.timestamp) * 1000).toLocaleString()}</p>
                   </div>
                 </div>
               </div>
@@ -491,18 +486,19 @@ export default function RetrievePage() {
                 </div>
                 <h3 className="mb-4 text-red-900 text-2xl">Access Not Granted</h3>
                 <p className="text-sm text-red-700 mb-3 max-w-md mx-auto">
-                  Your wallet address does not have permission to decrypt this dataset. 
-                  The data owner must explicitly grant you access through the platform.
+                  Your wallet address does not have permission to decrypt this dataset. The data owner must explicitly
+                  grant you access through the platform.
                 </p>
                 <p className="text-xs text-red-600 mb-6">
-                  Please contact the dataset owner and request that they add your wallet address 
-                  ({address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'your address'}) 
-                  to the authorized recipients list.
+                  Please contact the dataset owner and request that they add your wallet address (
+                  {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "your address"}) to the authorized
+                  recipients list.
                 </p>
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-md mx-auto">
                   <p className="text-xs text-red-800">
                     <Icon name="shield" size={14} className="inline mr-1" />
-                    This ensures your privacy and data sovereignty - only explicitly trusted parties can access sensitive training data.
+                    This ensures your privacy and data sovereignty - only explicitly trusted parties can access
+                    sensitive training data.
                   </p>
                 </div>
               </div>
@@ -528,14 +524,14 @@ export default function RetrievePage() {
                 </div>
                 <h3>Dataset Content</h3>
               </div>
-              
+
               <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-800">
                   <Icon name="unlock" size={16} className="inline mr-2" />
                   Successfully decrypted! This data has been shared with you for AI training or research purposes.
                 </p>
               </div>
-              
+
               <div className="card bg-[var(--color-secondary)] p-6 mb-6 border-2 border-[var(--color-border)]">
                 <pre className="text-sm whitespace-pre-wrap font-mono overflow-auto max-h-96 leading-relaxed">
                   {decryptedContent}
@@ -553,12 +549,12 @@ export default function RetrievePage() {
                   <Icon name="copy" size={18} />
                   Copy Content
                 </button>
-                
+
                 <button
                   onClick={() => {
-                    const blob = new Blob([decryptedContent], { type: 'text/plain' });
+                    const blob = new Blob([decryptedContent], { type: "text/plain" });
                     const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
+                    const a = document.createElement("a");
                     a.href = url;
                     a.download = `dataset-${currentCID?.slice(0, 8)}.txt`;
                     document.body.appendChild(a);
@@ -577,7 +573,8 @@ export default function RetrievePage() {
               <div className="mt-6 bg-[var(--color-secondary)] p-4 rounded-lg">
                 <p className="text-xs text-muted">
                   <Icon name="info" size={14} className="inline mr-1" />
-                  Remember to use this data responsibly and in accordance with any agreements you have with the data owner.
+                  Remember to use this data responsibly and in accordance with any agreements you have with the data
+                  owner.
                 </p>
               </div>
             </div>

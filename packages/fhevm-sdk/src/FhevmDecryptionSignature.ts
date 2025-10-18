@@ -1,6 +1,6 @@
-import { GenericStringStorage } from "./storage/GenericStringStorage";
-import { EIP712Type, FhevmDecryptionSignatureType, FhevmInstance } from "./fhevmTypes";
 import { ethers } from "ethers";
+import { EIP712Type, FhevmDecryptionSignatureType, FhevmInstance } from "./fhevmTypes";
+import { GenericStringStorage } from "./storage/GenericStringStorage";
 
 function _timestampNow(): number {
   return Math.floor(Date.now() / 1000);
@@ -19,7 +19,12 @@ class FhevmDecryptionSignatureStorageKey {
 
     const sortedContractAddresses = (contractAddresses as `0x${string}`[]).sort();
 
-    const emptyEIP712 = (instance as any).createEIP712(publicKey ?? (ethers as any).ZeroAddress, sortedContractAddresses, 0, 0);
+    const emptyEIP712 = (instance as any).createEIP712(
+      publicKey ?? (ethers as any).ZeroAddress,
+      sortedContractAddresses,
+      0,
+      0,
+    );
 
     try {
       const hash = (ethers as any).TypedDataEncoder.hash(
@@ -132,7 +137,9 @@ export class FhevmDecryptionSignature {
       if (typeof (s as any).contractAddresses[i] !== "string") return false;
       if (!((s as any).contractAddresses[i] as string).startsWith("0x")) return false;
     }
-    if (!("userAddress" in s && typeof (s as any).userAddress === "string" && (s as any).userAddress.startsWith("0x"))) {
+    if (
+      !("userAddress" in s && typeof (s as any).userAddress === "string" && (s as any).userAddress.startsWith("0x"))
+    ) {
       return false;
     }
     if (!("eip712" in s && typeof (s as any).eip712 === "object" && (s as any).eip712 !== null)) {
@@ -147,7 +154,9 @@ export class FhevmDecryptionSignature {
     if (!("message" in (s as any).eip712)) {
       return false;
     }
-    if (!("types" in (s as any).eip712 && typeof (s as any).eip712.types === "object" && (s as any).eip712.types !== null)) {
+    if (
+      !("types" in (s as any).eip712 && typeof (s as any).eip712.types === "object" && (s as any).eip712.types !== null)
+    ) {
       return false;
     }
     return true;
@@ -292,4 +301,3 @@ export class FhevmDecryptionSignature {
     return sig;
   }
 }
-

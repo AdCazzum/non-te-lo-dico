@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { GenericStringInMemoryStorage } from "../src/storage/GenericStringStorage";
 
 describe("GenericStringInMemoryStorage", () => {
@@ -10,4 +10,3 @@ describe("GenericStringInMemoryStorage", () => {
     expect(s.getItem("k")).toBe(null);
   });
 });
-

@@ -1,13 +1,8 @@
-import { isAddress, Eip1193Provider, JsonRpcProvider } from "ethers";
-import type {
-  FhevmInitSDKOptions,
-  FhevmInitSDKType,
-  FhevmLoadSDKType,
-  FhevmWindowType,
-} from "./fhevmTypes";
-import { isFhevmWindowType, RelayerSDKLoader } from "./RelayerSDKLoader";
-import { publicKeyStorageGet, publicKeyStorageSet } from "./PublicKeyStorage";
+import { Eip1193Provider, JsonRpcProvider, isAddress } from "ethers";
 import { FhevmInstance, FhevmInstanceConfig } from "../fhevmTypes";
+import { publicKeyStorageGet, publicKeyStorageSet } from "./PublicKeyStorage";
+import { RelayerSDKLoader, isFhevmWindowType } from "./RelayerSDKLoader";
+import type { FhevmInitSDKOptions, FhevmInitSDKType, FhevmLoadSDKType, FhevmWindowType } from "./fhevmTypes";
 
 export class FhevmReactError extends Error {
   code: string;
@@ -18,11 +13,7 @@ export class FhevmReactError extends Error {
   }
 }
 
-function throwFhevmError(
-  code: string,
-  message?: string,
-  cause?: unknown
-): never {
+function throwFhevmError(code: string, message?: string, cause?: unknown): never {
   throw new FhevmReactError(code, message, cause ? { cause } : undefined);
 }
 
@@ -38,9 +29,7 @@ const fhevmLoadSDK: FhevmLoadSDKType = () => {
   return loader.load();
 };
 
-const fhevmInitSDK: FhevmInitSDKType = async (
-  options?: FhevmInitSDKOptions
-) => {
+const fhevmInitSDK: FhevmInitSDKType = async (options?: FhevmInitSDKOptions) => {
   if (!isFhevmWindowType(window, console.log)) {
     throw new Error("window.relayerSDK is not available");
   }
@@ -69,16 +58,9 @@ export class FhevmAbortError extends Error {
   }
 }
 
-type FhevmRelayerStatusType =
-  | "sdk-loading"
-  | "sdk-loaded"
-  | "sdk-initializing"
-  | "sdk-initialized"
-  | "creating";
+type FhevmRelayerStatusType = "sdk-loading" | "sdk-loaded" | "sdk-initializing" | "sdk-initialized" | "creating";
 
-async function getChainId(
-  providerOrUrl: Eip1193Provider | string
-): Promise<number> {
+async function getChainId(providerOrUrl: Eip1193Provider | string): Promise<number> {
   if (typeof providerOrUrl === "string") {
     const provider = new JsonRpcProvider(providerOrUrl);
     return Number((await provider.getNetwork()).chainId);
@@ -96,7 +78,7 @@ async function getWeb3Client(rpcUrl: string) {
     throwFhevmError(
       "WEB3_CLIENTVERSION_ERROR",
       `The URL ${rpcUrl} is not a Web3 node or is not reachable. Please check the endpoint.`,
-      e
+      e,
     );
   } finally {
     rpc.destroy();
@@ -112,10 +94,7 @@ async function tryFetchFHEVMHardhatNodeRelayerMetadata(rpcUrl: string): Promise<
   | undefined
 > {
   const version = await getWeb3Client(rpcUrl);
-  if (
-    typeof version !== "string" ||
-    !version.toLowerCase().includes("hardhat")
-  ) {
+  if (typeof version !== "string" || !version.toLowerCase().includes("hardhat")) {
     // Not a Hardhat Node
     return undefined;
   }
@@ -125,11 +104,7 @@ async function tryFetchFHEVMHardhatNodeRelayerMetadata(rpcUrl: string): Promise<
       return undefined;
     }
     if (
-      !(
-        "ACLAddress" in metadata &&
-        typeof metadata.ACLAddress === "string" &&
-        metadata.ACLAddress.startsWith("0x")
-      )
+      !("ACLAddress" in metadata && typeof metadata.ACLAddress === "string" && metadata.ACLAddress.startsWith("0x"))
     ) {
       return undefined;
     }
@@ -167,7 +142,7 @@ async function getFHEVMRelayerMetadata(rpcUrl: string) {
     throwFhevmError(
       "FHEVM_RELAYER_METADATA_ERROR",
       `The URL ${rpcUrl} is not a FHEVM Hardhat node or is not reachable. Please check the endpoint.`,
-      e
+      e,
     );
   } finally {
     rpc.destroy();
@@ -180,7 +155,7 @@ type ResolveResult = MockResolveResult | GenericResolveResult;
 
 async function resolve(
   providerOrUrl: Eip1193Provider | string,
-  mockChains?: Record<number, string>
+  mockChains?: Record<number, string>,
 ): Promise<ResolveResult> {
   // Resolve chainId
   const chainId = await getChainId(providerOrUrl);
@@ -219,31 +194,25 @@ export const createFhevmInstance = async (parameters: {
     if (onStatusChange) onStatusChange(status);
   };
 
-  const {
-    signal,
-    onStatusChange,
-    provider: providerOrUrl,
-    mockChains,
-  } = parameters;
+  const { signal, onStatusChange, provider: providerOrUrl, mockChains } = parameters;
 
   // Resolve chainId
   const { isMock, rpcUrl, chainId } = await resolve(providerOrUrl, mockChains);
 
   if (isMock) {
     // Throws an error if cannot connect or url does not refer to a Web3 client
-    const fhevmRelayerMetadata =
-      await tryFetchFHEVMHardhatNodeRelayerMetadata(rpcUrl);
+    const fhevmRelayerMetadata = await tryFetchFHEVMHardhatNodeRelayerMetadata(rpcUrl);
 
     if (fhevmRelayerMetadata) {
       // fhevmRelayerMetadata is defined, which means rpcUrl refers to a FHEVM Hardhat Node
       notify("creating");
 
       //////////////////////////////////////////////////////////////////////////
-      // 
+      //
       // WARNING!!
-      // ALWAY USE DYNAMIC IMPORT TO AVOID INCLUDING THE ENTIRE FHEVM MOCK LIB 
+      // ALWAY USE DYNAMIC IMPORT TO AVOID INCLUDING THE ENTIRE FHEVM MOCK LIB
       // IN THE FINAL PRODUCTION BUNDLE!!
-      // 
+      //
       //////////////////////////////////////////////////////////////////////////
       const fhevmMock = await import("./mock/fhevmMock");
       const mockInstance = await fhevmMock.fhevmMockCreateInstance({
@@ -305,11 +274,7 @@ export const createFhevmInstance = async (parameters: {
   const instance = await relayerSDK.createInstance(config);
 
   // Save the key even if aborted
-  await publicKeyStorageSet(
-    aclAddress,
-    instance.getPublicKey(),
-    instance.getPublicParams(2048)
-  );
+  await publicKeyStorageSet(aclAddress, instance.getPublicKey(), instance.getPublicParams(2048));
 
   throwIfAborted();
 

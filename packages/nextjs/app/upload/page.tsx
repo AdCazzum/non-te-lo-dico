@@ -1,25 +1,25 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useFhevm } from "@fhevm-sdk";
 import { useAccount } from "wagmi";
-import { RainbowKitCustomConnectButton } from "~~/components/helper/RainbowKitCustomConnectButton";
-import { PinataSetupInstructions } from "~~/components/PinataSetupInstructions";
-import { useFHEIPFSStorage } from "~~/hooks/useFHEIPFSStorage";
-import { useCombinedIPFSUpload } from "~~/hooks/useCombinedIPFS";
-import { generateEncryptionKey, encryptFile } from "~~/utils/crypto";
-import { notification } from "~~/utils/helper/notification";
-import Link from "next/link";
 import { Icon } from "~~/components/Icon";
+import { PinataSetupInstructions } from "~~/components/PinataSetupInstructions";
+import { RainbowKitCustomConnectButton } from "~~/components/helper/RainbowKitCustomConnectButton";
+import { useCombinedIPFSUpload } from "~~/hooks/useCombinedIPFS";
+import { useFHEIPFSStorage } from "~~/hooks/useFHEIPFSStorage";
+import { encryptFile, generateEncryptionKey } from "~~/utils/crypto";
+import { notification } from "~~/utils/helper/notification";
 
 export default function UploadPage() {
-  const { isConnected, address, chain } = useAccount();
+  const { isConnected, chain } = useAccount();
   const chainId = chain?.id;
 
   // Check if Pinata is configured
   const isPinataConfigured = useMemo(() => {
     const jwt = process.env.NEXT_PUBLIC_PINATA_JWT;
-    return jwt && jwt !== 'your_pinata_jwt_token_here' && jwt.length > 0;
+    return jwt && jwt !== "your_pinata_jwt_token_here" && jwt.length > 0;
   }, []);
 
   // Create EIP-1193 provider from wagmi for FHEVM
@@ -77,7 +77,7 @@ export default function UploadPage() {
 
       // Step 3: Upload encrypted file to IPFS
       const cid = await uploadToIPFS(encryptedContent, `encrypted_${selectedFile.name}`);
-      
+
       if (!cid) {
         throw new Error("Failed to upload to IPFS");
       }
@@ -86,7 +86,7 @@ export default function UploadPage() {
 
       // Step 4: Encrypt the key with ZAMA and store on blockchain
       const success = await storage.storeFile(cid, key);
-      
+
       if (success) {
         notification.success("File stored on blockchain!");
       }
@@ -142,8 +142,8 @@ export default function UploadPage() {
             </div>
             <h2 className="mb-4">Connect Your Wallet</h2>
             <p className="mb-8 text-muted">
-              To upload and share encrypted datasets, please connect your Ethereum wallet. 
-              This ensures secure access control and cryptographic proof of ownership.
+              To upload and share encrypted datasets, please connect your Ethereum wallet. This ensures secure access
+              control and cryptographic proof of ownership.
             </p>
             <div className="flex justify-center">
               <RainbowKitCustomConnectButton />
@@ -164,8 +164,8 @@ export default function UploadPage() {
             <h1>Upload Training Dataset</h1>
           </div>
           <p className="text-muted text-lg">
-            Securely share your AI training data with trusted organizations. Your data is encrypted 
-            client-side and stored on IPFS, with decryption keys protected by ZAMA's FHE technology.
+            Securely share your AI training data with trusted organizations. Your data is encrypted client-side and
+            stored on IPFS, with decryption keys protected by ZAMA&apos;s FHE technology.
           </p>
         </div>
 
@@ -176,8 +176,8 @@ export default function UploadPage() {
             <div>
               <h4 className="mb-2 font-semibold">Your Data Remains Private</h4>
               <p className="text-sm text-muted">
-                Files are encrypted on your device before upload. Only addresses you explicitly grant access to 
-                can decrypt and view your data. The blockchain ensures transparent and immutable access control.
+                Files are encrypted on your device before upload. Only addresses you explicitly grant access to can
+                decrypt and view your data. The blockchain ensures transparent and immutable access control.
               </p>
             </div>
           </div>
@@ -240,12 +240,10 @@ export default function UploadPage() {
               </div>
               <h3>Select Your Dataset</h3>
             </div>
-            
+
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-3">
-                  Choose a text file containing training data
-                </label>
+                <label className="block text-sm font-medium mb-3">Choose a text file containing training data</label>
                 <p className="text-xs text-muted mb-3">
                   Supported formats: .txt, .json, .csv, .md, or any text-based file for AI training
                 </p>
@@ -285,8 +283,8 @@ export default function UploadPage() {
               <div className="bg-[var(--color-secondary)] p-4 rounded-lg">
                 <p className="text-xs text-muted">
                   <Icon name="info" size={14} className="inline mr-1" />
-                  Your file will be encrypted locally using AES-256 before uploading to IPFS. 
-                  The encryption key will be protected with ZAMA's FHE and stored on-chain.
+                  Your file will be encrypted locally using AES-256 before uploading to IPFS. The encryption key will be
+                  protected with ZAMA&apos;s FHE and stored on-chain.
                 </p>
               </div>
 
@@ -307,12 +305,8 @@ export default function UploadPage() {
                   <div className="flex items-start gap-3">
                     <Icon name="check" size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-green-900 mb-2">
-                        File uploaded successfully!
-                      </p>
-                      <p className="text-xs text-green-700 break-all font-mono">
-                        IPFS CID: {uploadedCID}
-                      </p>
+                      <p className="text-sm font-medium text-green-900 mb-2">File uploaded successfully!</p>
+                      <p className="text-xs text-green-700 break-all font-mono">IPFS CID: {uploadedCID}</p>
                     </div>
                   </div>
                 </div>
@@ -329,21 +323,19 @@ export default function UploadPage() {
                 </div>
                 <h3>Grant Access to Trusted Parties</h3>
               </div>
-              
+
               <p className="text-sm text-muted mb-6">
-                Control who can decrypt your dataset by adding their Ethereum wallet addresses. 
-                Only these addresses will be able to access the decryption key through ZAMA's ACL system.
+                Control who can decrypt your dataset by adding their Ethereum wallet addresses. Only these addresses
+                will be able to access the decryption key through ZAMA&apos;s ACL system.
               </p>
-              
+
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-3">
-                    Recipient's Ethereum Address
-                  </label>
+                  <label className="block text-sm font-medium mb-3">Recipient&apos;s Ethereum Address</label>
                   <input
                     type="text"
                     value={granteeAddress}
-                    onChange={(e) => setGranteeAddress(e.target.value)}
+                    onChange={e => setGranteeAddress(e.target.value)}
                     placeholder="0x..."
                     className="input-field"
                   />
@@ -372,24 +364,19 @@ export default function UploadPage() {
                 </div>
                 <h3>Share Access Link</h3>
               </div>
-              
+
               <p className="text-sm text-muted mb-6">
-                Share this link with authorized recipients. They can use it to retrieve and decrypt your dataset 
-                (only if you've granted them access).
+                Share this link with authorized recipients. They can use it to retrieve and decrypt your dataset (only
+                if you&apos;ve granted them access).
               </p>
-              
+
               <div className="space-y-4">
                 <div className="card bg-[var(--color-secondary)] p-4">
                   <p className="text-xs text-muted mb-2">Secure Access Link</p>
-                  <p className="text-sm break-all font-mono text-[var(--color-foreground)]">
-                    {generateShareLink()}
-                  </p>
+                  <p className="text-sm break-all font-mono text-[var(--color-foreground)]">{generateShareLink()}</p>
                 </div>
 
-                <button
-                  onClick={handleCopyLink}
-                  className="btn-outline w-full flex items-center justify-center gap-2"
-                >
+                <button onClick={handleCopyLink} className="btn-outline w-full flex items-center justify-center gap-2">
                   <Icon name="copy" size={18} />
                   Copy Share Link
                 </button>
@@ -410,11 +397,9 @@ export default function UploadPage() {
               <Icon name="file" size={24} className="text-[var(--color-primary)]" />
               <h3>My Shared Datasets</h3>
             </div>
-            
-            <p className="text-sm text-muted mb-6">
-              View and manage all datasets you've uploaded to the platform
-            </p>
-            
+
+            <p className="text-sm text-muted mb-6">View and manage all datasets you&apos;ve uploaded to the platform</p>
+
             {storage.isLoading ? (
               <div className="flex items-center justify-center gap-2 py-8 text-[var(--color-primary)]">
                 <Icon name="loading" size={20} />
@@ -438,9 +423,7 @@ export default function UploadPage() {
                           <Icon name="file" size={16} className="text-[var(--color-primary)]" />
                           <p className="text-sm font-medium">Dataset #{index + 1}</p>
                         </div>
-                        <p className="text-xs text-muted break-all font-mono mb-2">
-                          CID: {file.cid}
-                        </p>
+                        <p className="text-xs text-muted break-all font-mono mb-2">CID: {file.cid}</p>
                         <p className="text-xs text-muted">
                           Uploaded: {new Date(Number(file.timestamp) * 1000).toLocaleString()}
                         </p>

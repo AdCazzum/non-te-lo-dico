@@ -1,5 +1,5 @@
-import { FhevmRelayerSDKType, FhevmWindowType } from "./fhevmTypes";
 import { SDK_CDN_URL } from "./constants";
+import { FhevmRelayerSDKType, FhevmWindowType } from "./fhevmTypes";
 
 type TraceType = (message?: unknown, ...optionalParams: unknown[]) => void;
 
@@ -22,9 +22,7 @@ export class RelayerSDKLoader {
     // Ensure this only runs in the browser
     if (typeof window === "undefined") {
       console.log("[RelayerSDKLoader] window === undefined");
-      return Promise.reject(
-        new Error("RelayerSDKLoader: can only be used in the browser.")
-      );
+      return Promise.reject(new Error("RelayerSDKLoader: can only be used in the browser."));
     }
 
     if ("relayerSDK" in window) {
@@ -36,16 +34,10 @@ export class RelayerSDKLoader {
     }
 
     return new Promise((resolve, reject) => {
-      const existingScript = document.querySelector(
-        `script[src="${SDK_CDN_URL}"]`
-      );
+      const existingScript = document.querySelector(`script[src="${SDK_CDN_URL}"]`);
       if (existingScript) {
         if (!isFhevmWindowType(window, this._trace)) {
-          reject(
-            new Error(
-              "RelayerSDKLoader: window object does not contain a valid relayerSDK object."
-            )
-          );
+          reject(new Error("RelayerSDKLoader: window object does not contain a valid relayerSDK object."));
         }
         resolve();
         return;
@@ -61,8 +53,8 @@ export class RelayerSDKLoader {
           console.log("[RelayerSDKLoader] script onload FAILED...");
           reject(
             new Error(
-              `RelayerSDKLoader: Relayer SDK script has been successfully loaded from ${SDK_CDN_URL}, however, the window.relayerSDK object is invalid.`
-            )
+              `RelayerSDKLoader: Relayer SDK script has been successfully loaded from ${SDK_CDN_URL}, however, the window.relayerSDK object is invalid.`,
+            ),
           );
         }
         resolve();
@@ -70,24 +62,17 @@ export class RelayerSDKLoader {
 
       script.onerror = () => {
         console.log("[RelayerSDKLoader] script onerror... ");
-        reject(
-          new Error(
-            `RelayerSDKLoader: Failed to load Relayer SDK from ${SDK_CDN_URL}`
-          )
-        );
+        reject(new Error(`RelayerSDKLoader: Failed to load Relayer SDK from ${SDK_CDN_URL}`));
       };
 
       console.log("[RelayerSDKLoader] add script to DOM...");
       document.head.appendChild(script);
-      console.log("[RelayerSDKLoader] script added!")
+      console.log("[RelayerSDKLoader] script added!");
     });
   }
 }
 
-function isFhevmRelayerSDKType(
-  o: unknown,
-  trace?: TraceType
-): o is FhevmRelayerSDKType {
+function isFhevmRelayerSDKType(o: unknown, trace?: TraceType): o is FhevmRelayerSDKType {
   if (typeof o === "undefined") {
     trace?.("RelayerSDKLoader: relayerSDK is undefined");
     return false;
@@ -121,10 +106,7 @@ function isFhevmRelayerSDKType(
   return true;
 }
 
-export function isFhevmWindowType(
-  win: unknown,
-  trace?: TraceType
-): win is FhevmWindowType {
+export function isFhevmWindowType(win: unknown, trace?: TraceType): win is FhevmWindowType {
   if (typeof win === "undefined") {
     trace?.("RelayerSDKLoader: window object is undefined");
     return false;
@@ -147,27 +129,26 @@ export function isFhevmWindowType(
 function objHasProperty<
   T extends object,
   K extends PropertyKey,
-  V extends string // "string", "number", etc.
+  V extends string, // "string", "number", etc.
 >(
   obj: T,
   propertyName: K,
   propertyType: V,
-  trace?: TraceType
+  trace?: TraceType,
 ): obj is T &
   Record<
     K,
     V extends "string"
       ? string
       : V extends "number"
-      ? number
-      : V extends "object"
-      ? object
-      : V extends "boolean"
-      ? boolean
-      : V extends "function"
-      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (...args: any[]) => any
-      : unknown
+        ? number
+        : V extends "object"
+          ? object
+          : V extends "boolean"
+            ? boolean
+            : V extends "function"
+              ? (...args: any[]) => any
+              : unknown
   > {
   if (!obj || typeof obj !== "object") {
     return false;
@@ -186,9 +167,7 @@ function objHasProperty<
   }
 
   if (typeof value !== propertyType) {
-    trace?.(
-      `RelayerSDKLoader: ${String(propertyName)} is not a ${propertyType}.`
-    );
+    trace?.(`RelayerSDKLoader: ${String(propertyName)} is not a ${propertyType}.`);
     return false;
   }
 

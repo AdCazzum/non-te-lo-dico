@@ -36,4 +36,3 @@ export type EIP712Type = {
     }[];
   };
 };
-

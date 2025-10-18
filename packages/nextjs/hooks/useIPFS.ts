@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
 /**
  * Hook for uploading files to IPFS via Pinata
@@ -15,50 +15,50 @@ export function useIPFSUpload() {
 
     try {
       const pinataJWT = process.env.NEXT_PUBLIC_PINATA_JWT;
-      
-      if (!pinataJWT || pinataJWT === 'your_pinata_jwt_token_here') {
-        throw new Error('Pinata JWT not configured. Please set NEXT_PUBLIC_PINATA_JWT in your .env file');
+
+      if (!pinataJWT || pinataJWT === "your_pinata_jwt_token_here") {
+        throw new Error("Pinata JWT not configured. Please set NEXT_PUBLIC_PINATA_JWT in your .env file");
       }
 
       // Create a blob from the encrypted content
-      const blob = new Blob([encryptedContent], { type: 'application/octet-stream' });
+      const blob = new Blob([encryptedContent], { type: "application/octet-stream" });
       const formData = new FormData();
-      formData.append('file', blob, fileName);
+      formData.append("file", blob, fileName);
 
       // Optional: Add metadata
       const metadata = JSON.stringify({
         name: fileName,
       });
-      formData.append('pinataMetadata', metadata);
+      formData.append("pinataMetadata", metadata);
 
       // Upload to Pinata
-      const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
-        method: 'POST',
+      const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${pinataJWT}`,
+          Authorization: `Bearer ${pinataJWT}`,
         },
         body: formData,
       });
 
       if (!response.ok) {
         const errorData = await response.text();
-        console.error('Pinata error response:', errorData);
+        console.error("Pinata error response:", errorData);
         throw new Error(`Upload failed: ${response.status} ${response.statusText} - ${errorData}`);
       }
 
       const data = await response.json();
       const cid = data.IpfsHash;
-      
+
       if (!cid) {
-        throw new Error('No CID returned from Pinata');
+        throw new Error("No CID returned from Pinata");
       }
-      
-      console.log('File uploaded to IPFS:', cid);
+
+      console.log("File uploaded to IPFS:", cid);
       return cid;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+      const errorMessage = error instanceof Error ? error.message : "Upload failed";
       setUploadError(errorMessage);
-      console.error('IPFS upload error:', error);
+      console.error("IPFS upload error:", error);
       return null;
     } finally {
       setIsUploading(false);
@@ -94,9 +94,9 @@ export function useIPFSDownload() {
       const encryptedContent = await response.text();
       return encryptedContent;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Download failed';
+      const errorMessage = error instanceof Error ? error.message : "Download failed";
       setDownloadError(errorMessage);
-      console.error('IPFS download error:', error);
+      console.error("IPFS download error:", error);
       return null;
     } finally {
       setIsDownloading(false);

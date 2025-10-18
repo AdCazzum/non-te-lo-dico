@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ethers } from "ethers";
 import type { FhevmInstance } from "../fhevmTypes.js";
 import { createFhevmInstance } from "../internal/fhevm.js";
-import { ethers } from "ethers";
 
 function _assert(condition: boolean, message?: string): asserts condition {
   if (!condition) {
@@ -125,4 +125,3 @@ export function useFhevm(parameters: {
 
   return { instance, refresh, error, status };
 }
-

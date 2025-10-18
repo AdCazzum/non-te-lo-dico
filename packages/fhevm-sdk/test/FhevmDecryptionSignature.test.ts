@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { FhevmDecryptionSignature } from "../src/FhevmDecryptionSignature";
 
 describe("FhevmDecryptionSignature", () => {
@@ -7,4 +7,3 @@ describe("FhevmDecryptionSignature", () => {
     expect(FhevmDecryptionSignature.checkIs({})).toBe(false);
   });
 });
-

@@ -5,6 +5,7 @@ A decentralized application for uploading encrypted files to IPFS and managing a
 ## 🚀 What is This?
 
 This project demonstrates how to build a privacy-preserving file storage system using:
+
 - **FHEVM**: Fully Homomorphic Encryption on Ethereum for access control
 - **IPFS**: Decentralized file storage via Pinata
 - **Smart Contracts**: On-chain permission management
@@ -134,6 +135,7 @@ For detailed instructions, see [FHE_DATA_STORAGE_GUIDE.md](./FHE_DATA_STORAGE_GU
 ## 🏗️ Architecture
 
 ### Smart Contract
+
 - **Name**: `FHEDataStorage.sol`
 - **Network**: Sepolia Testnet
 - **Address**: `0xc907CC22B6cFB5a263D01eeA860E85cE9d03aDc9`
@@ -144,12 +146,14 @@ For detailed instructions, see [FHE_DATA_STORAGE_GUIDE.md](./FHE_DATA_STORAGE_GU
   - Event emissions for tracking
 
 ### Frontend Components
+
 - **`FileUpload.tsx`**: Upload files to IPFS and blockchain
 - **`FileManager.tsx`**: View files and manage permissions
 - **`FileRetrieval.tsx`**: Retrieve and decrypt files
 - **`useFHEDataStorage.tsx`**: Custom hook for contract interaction
 
 ### Tech Stack
+
 - **Frontend**: Next.js 14, React, TypeScript
 - **Styling**: Tailwind CSS, DaisyUI
 - **Blockchain**: Wagmi, Viem, RainbowKit
@@ -175,6 +179,7 @@ When developing with MetaMask and Hardhat, you may encounter these common issues
 **Problem**: MetaMask tracks transaction nonces, but when you restart Hardhat, the node resets while MetaMask doesn't update its tracking.
 
 **Solution**:
+
 1. Open MetaMask extension
 2. Select the Hardhat network
 3. Go to **Settings** → **Advanced**
@@ -186,6 +191,7 @@ When developing with MetaMask and Hardhat, you may encounter these common issues
 **Problem**: MetaMask caches smart contract view function results. After restarting Hardhat, you may see outdated data.
 
 **Solution**:
+
 1. **Restart your entire browser** (not just refresh the page)
 2. MetaMask's cache is stored in extension memory and requires a full browser restart to clear
 
@@ -225,36 +231,45 @@ non-te-lo-dico/
 ## ❓ FAQ
 
 ### Q: Do I need to deploy the smart contract?
+
 **A**: No! The contract is already deployed on Sepolia at `0xc907CC22B6cFB5a263D01eeA860E85cE9d03aDc9`. Just configure Pinata and start using it.
 
 ### Q: Are my files encrypted?
+
 **A**: The file content itself is stored on IPFS as-is. The **access control** uses FHE encryption - only authorized addresses can view and decrypt the file's ID. For complete privacy, implement client-side encryption before uploading.
 
 ### Q: How much does it cost?
+
 **A**: You only pay Ethereum gas fees for blockchain transactions (saveDataItem, grantAccess, revokeAccess). IPFS storage via Pinata has a free tier. Use Sepolia testnet for free testing.
 
 ### Q: Can I use this on mainnet?
+
 **A**: The contract would need to be deployed on a mainnet that supports FHEVM (currently limited). This demo is designed for Sepolia testnet.
 
 ### Q: What happens if I lose access to my wallet?
+
 **A**: You'll lose access to your files since permissions are tied to your Ethereum address. Always backup your wallet securely.
 
 ### Q: How do I know someone has granted me access?
+
 **A**: Check the blockchain events or try to retrieve the file using its index. The contract will tell you if you have access.
 
 ## 📚 Additional Resources
 
 ### Official Documentation
+
 - [FHEVM Documentation](https://docs.zama.ai/protocol/solidity-guides/) - Complete FHEVM guide
 - [FHEVM Hardhat Guide](https://docs.zama.ai/protocol/solidity-guides/development-guide/hardhat) - Hardhat integration
 - [Relayer SDK Documentation](https://docs.zama.ai/protocol/relayer-sdk-guides/) - SDK reference
 - [Environment Setup](https://docs.zama.ai/protocol/solidity-guides/getting-started/setup#set-up-the-hardhat-configuration-variables-optional) - MNEMONIC & API keys
 
 ### Development Tools
+
 - [MetaMask + Hardhat Setup](https://docs.metamask.io/wallet/how-to/run-devnet/) - Local development
 - [React Documentation](https://reactjs.org/) - React framework guide
 
 ### Community & Support
+
 - [FHEVM Discord](https://discord.com/invite/zama) - Community support
 - [GitHub Issues](https://github.com/zama-ai/fhevm-react-template/issues) - Bug reports & feature requests
 

@@ -2,10 +2,10 @@ import { useRef, useState } from "react";
 import { NetworkOptions } from "./NetworkOptions";
 import { Address, getAddress } from "viem";
 import { useDisconnect } from "wagmi";
+import { Icon } from "~~/components/Icon";
 import { BlockieAvatar } from "~~/components/helper";
 import { useOutsideClick } from "~~/hooks/helper";
 import { getTargetNetworks } from "~~/utils/helper";
-import { Icon } from "~~/components/Icon";
 
 const allowedNetworks = getTargetNetworks();
 
@@ -40,7 +40,7 @@ export const AddressInfoDropdown = ({ address, ensAvatar, displayName }: Address
       >
         <BlockieAvatar address={checkSumAddress} size={24} ensImage={ensAvatar} />
         <span className="text-sm font-medium">{displayName}</span>
-        <Icon name="arrowRight" size={16} className={`transform transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+        <Icon name="arrowRight" size={16} className={`transform transition-transform ${isOpen ? "rotate-90" : ""}`} />
       </button>
 
       {isOpen && (

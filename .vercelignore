@@ -1,0 +1,5 @@
+packages/hardhat
+packages/fhevm-sdk/node_modules
+scripts
+.github
+*.md

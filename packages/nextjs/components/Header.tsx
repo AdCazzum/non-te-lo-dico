@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { RainbowKitCustomConnectButton } from "~~/components/helper";
 import { Icon } from "~~/components/Icon";
+import { RainbowKitCustomConnectButton } from "~~/components/helper";
 
 /**
  * Site header with integrated sidebar menu
@@ -117,7 +117,7 @@ export const Header = () => {
           {/* Navigation Items */}
           <nav className="flex-1 p-4 overflow-y-auto">
             <ul className="space-y-2">
-              {menuItems.map((item, index) => {
+              {menuItems.map(item => {
                 const isActive = pathname === item.path;
                 return (
                   <li key={item.path}>
@@ -137,30 +137,12 @@ export const Header = () => {
                             : "bg-[var(--color-border)] group-hover:bg-[var(--color-border-hover)]"
                         }`}
                       >
-                        <Icon
-                          name={item.icon}
-                          size={20}
-                          className={
-                            isActive
-                              ? ""
-                              : "text-[var(--color-foreground)]"
-                          }
-                        />
+                        <Icon name={item.icon} size={20} className={isActive ? "" : "text-[var(--color-foreground)]"} />
                       </div>
                       <div className="flex-1">
+                        <div className={`font-medium mb-0.5 ${isActive ? "text-black" : ""}`}>{item.name}</div>
                         <div
-                          className={`font-medium mb-0.5 ${
-                            isActive ? "text-black" : ""
-                          }`}
-                        >
-                          {item.name}
-                        </div>
-                        <div
-                          className={`text-xs ${
-                            isActive
-                              ? "text-black text-opacity-70"
-                              : "text-[var(--color-muted)]"
-                          }`}
+                          className={`text-xs ${isActive ? "text-black text-opacity-70" : "text-[var(--color-muted)]"}`}
                         >
                           {item.description}
                         </div>

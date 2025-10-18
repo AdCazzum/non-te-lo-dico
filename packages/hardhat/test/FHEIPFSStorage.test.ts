@@ -6,11 +6,11 @@ import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 describe("FHEIPFSStorage", function () {
   let fheIPFSStorage: FHEIPFSStorage;
   let owner: HardhatEthersSigner;
-  let addr1: HardhatEthersSigner;
-  let addr2: HardhatEthersSigner;
+  let _addr1: HardhatEthersSigner;
+  let _addr2: HardhatEthersSigner;
 
   beforeEach(async function () {
-    [owner, addr1, addr2] = await ethers.getSigners();
+    [owner, _addr1, _addr2] = await ethers.getSigners();
     const FHEIPFSStorageFactory = await ethers.getContractFactory("FHEIPFSStorage");
     fheIPFSStorage = (await FHEIPFSStorageFactory.deploy()) as unknown as FHEIPFSStorage;
     await fheIPFSStorage.waitForDeployment();

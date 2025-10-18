@@ -30,15 +30,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
 
       - name: Install Vercel CLI
         run: pnpm add --global vercel@latest
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: packages/nextjs
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -46,13 +45,11 @@ jobs:
       - name: Build SDK (required before Next.js)
         run: pnpm sdk:build
 
-      - name: Build with Vercel
+      - name: Build Next.js with Vercel
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: packages/nextjs
 
       - name: Deploy to Vercel
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: packages/nextjs
 
   Deploy-Preview:
     runs-on: ubuntu-latest
@@ -69,15 +66,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
 
       - name: Install Vercel CLI
         run: pnpm add --global vercel@latest
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: packages/nextjs
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -85,10 +81,8 @@ jobs:
       - name: Build SDK (required before Next.js)
         run: pnpm sdk:build
 
-      - name: Build with Vercel
+      - name: Build Next.js with Vercel
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: packages/nextjs
 
       - name: Deploy to Vercel
         run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: packages/nextjs

@@ -20,12 +20,16 @@ export default function Home() {
             <span className="text-[var(--color-primary)]">Without Compromising Privacy</span>
           </h1>
 
-          <p className="text-xl text-muted max-w-3xl mx-auto leading-relaxed" style={{
-            justifySelf: "center",
-          }}>
-            <span className="font-semibold text-[var(--color-primary)]">non-te-lo-dico</span> is a decentralized platform for securely sharing datasets with trusted AI companies and researchers.
-            Using ZAMA's Fully Homomorphic Encryption and blockchain technology, you maintain complete control
-            over who can access your data.
+          <p
+            className="text-xl text-muted max-w-3xl mx-auto leading-relaxed"
+            style={{
+              justifySelf: "center",
+            }}
+          >
+            <span className="font-semibold text-[var(--color-primary)]">non-te-lo-dico</span> is a decentralized
+            platform for securely sharing datasets with trusted AI companies and researchers. Using ZAMA&apos;s Fully
+            Homomorphic Encryption and blockchain technology, you maintain complete control over who can access your
+            data.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 mt-10">
@@ -49,7 +53,8 @@ export default function Home() {
               </div>
               <h3 className="mb-3 text-center">End-to-End Encryption</h3>
               <p className="text-sm text-muted text-center">
-                Your data is encrypted client-side before upload. Decryption keys are protected using ZAMA's FHE technology on the blockchain.
+                Your data is encrypted client-side before upload. Decryption keys are protected using ZAMA&apos;s FHE
+                technology on the blockchain.
               </p>
             </div>
 
@@ -59,7 +64,8 @@ export default function Home() {
               </div>
               <h3 className="mb-3 text-center">Selective Access Control</h3>
               <p className="text-sm text-muted text-center">
-                Grant decryption rights only to specific Ethereum addresses you trust. Revocable and fully transparent on-chain.
+                Grant decryption rights only to specific Ethereum addresses you trust. Revocable and fully transparent
+                on-chain.
               </p>
             </div>
 
@@ -79,9 +85,12 @@ export default function Home() {
         <div className="max-w-5xl mx-auto mb-24">
           <div className="text-center mb-16">
             <h2 className="mb-4 text-4xl font-bold">How It Works</h2>
-            <p className="text-lg text-muted max-w-2xl mx-auto self-center" style={{
-              justifySelf: "center",
-            }}>
+            <p
+              className="text-lg text-muted max-w-2xl mx-auto self-center"
+              style={{
+                justifySelf: "center",
+              }}
+            >
               A simple, secure workflow for sharing sensitive data with trusted parties
             </p>
           </div>
@@ -103,8 +112,8 @@ export default function Home() {
                     </div>
                     <h3 className="mb-3">Upload & Encrypt Your Dataset</h3>
                     <p className="text-sm text-muted mb-4">
-                      As a data owner, you upload text files containing valuable training data.
-                      The file is automatically encrypted on your device using a randomly generated key.
+                      As a data owner, you upload text files containing valuable training data. The file is
+                      automatically encrypted on your device using a randomly generated key.
                     </p>
                     <div className="flex flex-wrap gap-2 md:justify-end">
                       <span className="text-xs px-3 py-1 rounded-full bg-[var(--color-secondary)] border border-[var(--color-border)]">
@@ -143,7 +152,7 @@ export default function Home() {
                     </div>
                     <h3 className="mb-3">FHE-Protected Key Storage</h3>
                     <p className="text-sm text-muted mb-4">
-                      The encryption key is protected using ZAMA's Fully Homomorphic Encryption and stored
+                      The encryption key is protected using ZAMA&apos;s Fully Homomorphic Encryption and stored
                       on-chain. The IPFS link to your encrypted file is also recorded in the smart contract.
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -211,8 +220,8 @@ export default function Home() {
                     </div>
                     <h3 className="mb-3">Decrypt & Access Data</h3>
                     <p className="text-sm text-muted mb-4">
-                      Authorized recipients connect their wallet and retrieve the decryption key through ZAMA's ACL system.
-                      The file is downloaded from IPFS and decrypted client-side for immediate use.
+                      Authorized recipients connect their wallet and retrieve the decryption key through ZAMA&apos;s ACL
+                      system. The file is downloaded from IPFS and decrypted client-side for immediate use.
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <span className="text-xs px-3 py-1 rounded-full bg-[var(--color-secondary)] border border-[var(--color-border)]">
@@ -244,8 +253,8 @@ export default function Home() {
                 <div>
                   <h3 className="mb-2">AI Training Data Providers</h3>
                   <p className="text-sm text-muted">
-                    Safely monetize your datasets by sharing them with AI companies you trust,
-                    without exposing sensitive information to unauthorized parties.
+                    Safely monetize your datasets by sharing them with AI companies you trust, without exposing
+                    sensitive information to unauthorized parties.
                   </p>
                 </div>
               </div>
@@ -259,8 +268,8 @@ export default function Home() {
                 <div>
                   <h3 className="mb-2">Research Institutions</h3>
                   <p className="text-sm text-muted">
-                    Collaborate on sensitive research data with guaranteed privacy controls,
-                    ensuring compliance with data protection regulations.
+                    Collaborate on sensitive research data with guaranteed privacy controls, ensuring compliance with
+                    data protection regulations.
                   </p>
                 </div>
               </div>
@@ -274,8 +283,8 @@ export default function Home() {
                 <div>
                   <h3 className="mb-2">Enterprise Data Sharing</h3>
                   <p className="text-sm text-muted">
-                    Share proprietary datasets with business partners while maintaining
-                    cryptographic proof of access control and data sovereignty.
+                    Share proprietary datasets with business partners while maintaining cryptographic proof of access
+                    control and data sovereignty.
                   </p>
                 </div>
               </div>
@@ -289,8 +298,8 @@ export default function Home() {
                 <div>
                   <h3 className="mb-2">Healthcare & Compliance</h3>
                   <p className="text-sm text-muted">
-                    Share medical or personal data for research purposes with guaranteed
-                    privacy, perfect for GDPR and HIPAA compliance requirements.
+                    Share medical or personal data for research purposes with guaranteed privacy, perfect for GDPR and
+                    HIPAA compliance requirements.
                   </p>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 import { useAccount, useSwitchChain } from "wagmi";
-import { getTargetNetworks } from "~~/utils/helper";
 import { Icon } from "~~/components/Icon";
+import { getTargetNetworks } from "~~/utils/helper";
 
 const allowedNetworks = getTargetNetworks();
 

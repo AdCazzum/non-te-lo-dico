@@ -6,9 +6,9 @@ import { AddressInfoDropdown } from "./AddressInfoDropdown";
 import { WrongNetworkDropdown } from "./WrongNetworkDropdown";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Address } from "viem";
+import { Icon } from "~~/components/Icon";
 import { useTargetNetwork } from "~~/hooks/helper/useTargetNetwork";
 import { getBlockExplorerAddressLink } from "~~/utils/helper";
-import { Icon } from "~~/components/Icon";
 
 /**
  * Custom Wagmi Connect Button (watch balance + custom design)
@@ -29,11 +29,7 @@ export const RainbowKitCustomConnectButton = () => {
             {(() => {
               if (!connected) {
                 return (
-                  <button 
-                    className="btn-primary flex items-center gap-2" 
-                    onClick={openConnectModal} 
-                    type="button"
-                  >
+                  <button className="btn-primary flex items-center gap-2" onClick={openConnectModal} type="button">
                     <Icon name="user" size={18} />
                     Connect Wallet
                   </button>

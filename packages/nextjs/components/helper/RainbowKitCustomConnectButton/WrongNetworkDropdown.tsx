@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 import { NetworkOptions } from "./NetworkOptions";
 import { useDisconnect } from "wagmi";
 import { Icon } from "~~/components/Icon";
@@ -20,7 +20,7 @@ export const WrongNetworkDropdown = () => {
       >
         <Icon name="alert" size={18} />
         <span>Wrong Network</span>
-        <Icon name="arrowRight" size={16} className={`transform transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+        <Icon name="arrowRight" size={16} className={`transform transition-transform ${isOpen ? "rotate-90" : ""}`} />
       </button>
 
       {isOpen && (

@@ -33,11 +33,7 @@ export const Balance = ({ address, className = "" }: BalanceProps) => {
   }
 
   if (isError) {
-    return (
-      <div className="text-xs text-red-600">
-        Error
-      </div>
-    );
+    return <div className="text-xs text-red-600">Error</div>;
   }
 
   const formattedBalance = balance ? Number(formatEther(balance.value)) : 0;

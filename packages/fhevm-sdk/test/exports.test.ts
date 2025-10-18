@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as main from "../src";
-import * as react from "../src/react";
 import * as core from "../src/core";
+import * as react from "../src/react";
 import * as storage from "../src/storage";
 
 describe("exports", () => {
@@ -21,4 +21,3 @@ describe("exports", () => {
     expect(storage).toBeTruthy();
   });
 });
-

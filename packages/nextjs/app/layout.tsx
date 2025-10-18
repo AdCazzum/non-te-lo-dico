@@ -1,8 +1,15 @@
+import { Roboto } from "next/font/google";
 import "@rainbow-me/rainbowkit/styles.css";
 import { DappWrapperWithProviders } from "~~/components/DappWrapperWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/helper/getMetadata";
+
+const roboto = Roboto({
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata = getMetadata({
   title: "non-te-lo-dico | FHE-Protected IPFS Storage",
@@ -13,24 +20,18 @@ const DappWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning lang="en">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
-          rel="stylesheet"
-        />
         {/* Font Awesome */}
-        <link 
-          rel="stylesheet" 
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
-          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" 
-          crossOrigin="anonymous" 
-          referrerPolicy="no-referrer" 
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
         />
         {/* Favicon */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </head>
-      <body>
+      <body className={roboto.className}>
         <ThemeProvider enableSystem>
           <DappWrapperWithProviders>{children}</DappWrapperWithProviders>
         </ThemeProvider>

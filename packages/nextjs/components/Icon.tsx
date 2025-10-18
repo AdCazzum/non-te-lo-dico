@@ -14,13 +14,13 @@ export const Icon: React.FC<IconProps> = ({ name, size = 18, className = "" }) =
   // Special case for loading spinner
   if (name === "loading") {
     return (
-      <div 
+      <div
         className={`rounded-full animate-spin ${className}`}
-        style={{ 
-          width: `${size}px`, 
+        style={{
+          width: `${size}px`,
           height: `${size}px`,
           border: `${Math.max(2, size / 7)}px solid transparent`,
-          borderTopColor: 'currentColor',
+          borderTopColor: "currentColor",
         }}
         aria-hidden="true"
       />
@@ -55,12 +55,6 @@ export const Icon: React.FC<IconProps> = ({ name, size = 18, className = "" }) =
   };
 
   const iconClass = iconMap[name] || "fa-solid fa-circle";
-  
-  return (
-    <i 
-      className={`${iconClass} ${className}`} 
-      style={{ fontSize: `${size}px` }}
-      aria-hidden="true"
-    />
-  );
+
+  return <i className={`${iconClass} ${className}`} style={{ fontSize: `${size}px` }} aria-hidden="true" />;
 };

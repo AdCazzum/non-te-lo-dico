@@ -1,10 +1,10 @@
-import { useState, useCallback, useEffect } from "react";
-import { useAccount, usePublicClient, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { useDeployedContractInfo } from "~~/hooks/helper";
+import { useCallback, useEffect, useState } from "react";
 import { FhevmInstance } from "@fhevm-sdk";
-import { notification } from "~~/utils/helper/notification";
-import type { AllowedChainIds } from "~~/utils/helper/networks";
 import { toHex } from "viem";
+import { useAccount, usePublicClient, useWriteContract } from "wagmi";
+import { useDeployedContractInfo } from "~~/hooks/helper";
+import type { AllowedChainIds } from "~~/utils/helper/networks";
+import { notification } from "~~/utils/helper/notification";
 
 export interface FileMetadata {
   cid: string;
@@ -16,11 +16,11 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
   const { address: connectedAddress, chainId } = useAccount();
   const publicClient = usePublicClient({ chainId });
   const { writeContractAsync } = useWriteContract();
-  
+
   const allowedChainId = typeof chainId === "number" ? (chainId as AllowedChainIds) : undefined;
-  const { data: contractInfo } = useDeployedContractInfo({ 
-    contractName: "FHEIPFSStorage", 
-    chainId: allowedChainId 
+  const { data: contractInfo } = useDeployedContractInfo({
+    contractName: "FHEIPFSStorage",
+    chainId: allowedChainId,
   });
 
   const [myFiles, setMyFiles] = useState<FileMetadata[]>([]);
@@ -40,7 +40,7 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
       })) as string[];
 
       const filesData: FileMetadata[] = [];
-      
+
       for (const cid of cids) {
         const [owner, timestamp] = (await publicClient.readContract({
           address: contractInfo.address as `0x${string}`,
@@ -94,13 +94,11 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
 
         // Convert handles and inputProof to proper hex format
         // handles[0] might be Uint8Array or already a string
-        const encryptedHandle = typeof encryptedInput.handles[0] === 'string'
-          ? encryptedInput.handles[0]
-          : toHex(encryptedInput.handles[0]);
-        
-        const inputProof = typeof encryptedInput.inputProof === 'string'
-          ? encryptedInput.inputProof
-          : toHex(encryptedInput.inputProof);
+        const encryptedHandle =
+          typeof encryptedInput.handles[0] === "string" ? encryptedInput.handles[0] : toHex(encryptedInput.handles[0]);
+
+        const inputProof =
+          typeof encryptedInput.inputProof === "string" ? encryptedInput.inputProof : toHex(encryptedInput.inputProof);
 
         console.log("Converted handle:", encryptedHandle);
         console.log("Converted inputProof:", inputProof);
@@ -127,7 +125,7 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         return false;
       }
     },
-    [contractInfo, fhevmInstance, connectedAddress, writeContractAsync, publicClient, loadMyFiles]
+    [contractInfo, fhevmInstance, connectedAddress, writeContractAsync, publicClient, loadMyFiles],
   );
 
   // Grant access to a file
@@ -158,7 +156,7 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         return false;
       }
     },
-    [contractInfo, writeContractAsync, publicClient]
+    [contractInfo, writeContractAsync, publicClient],
   );
 
   // Get encrypted key (this will return the encrypted handle)
@@ -184,23 +182,23 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         // euint32 is returned as bytes32, which viem gives us as a hex string
         // We need to ensure it's properly formatted for useFHEDecrypt
         let hexHandle: string;
-        
-        if (typeof encryptedKey === 'string') {
+
+        if (typeof encryptedKey === "string") {
           // If it's already a string, ensure it's properly formatted
-          hexHandle = encryptedKey.startsWith('0x') ? encryptedKey : `0x${encryptedKey}`;
-        } else if (typeof encryptedKey === 'bigint') {
+          hexHandle = encryptedKey.startsWith("0x") ? encryptedKey : `0x${encryptedKey}`;
+        } else if (typeof encryptedKey === "bigint") {
           hexHandle = toHex(encryptedKey, { size: 32 });
-        } else if (typeof encryptedKey === 'object' && encryptedKey !== null) {
+        } else if (typeof encryptedKey === "object" && encryptedKey !== null) {
           // If it's an object or array, try to extract the value
           const value = Array.isArray(encryptedKey) ? encryptedKey[0] : (encryptedKey as any).value || encryptedKey;
-          if (typeof value === 'string') {
-            hexHandle = value.startsWith('0x') ? value : `0x${value}`;
-          } else if (typeof value === 'bigint') {
+          if (typeof value === "string") {
+            hexHandle = value.startsWith("0x") ? value : `0x${value}`;
+          } else if (typeof value === "bigint") {
             hexHandle = toHex(value, { size: 32 });
           } else {
             // Last resort: convert to string
             hexHandle = String(value);
-            if (!hexHandle.startsWith('0x')) {
+            if (!hexHandle.startsWith("0x")) {
               hexHandle = `0x${hexHandle}`;
             }
           }
@@ -208,10 +206,10 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
           // Fallback - convert to hex
           hexHandle = toHex(encryptedKey as any);
         }
-        
+
         console.log("Converted hex handle:", hexHandle);
         console.log("Handle length:", hexHandle.length, "Expected: 66 (0x + 64 hex chars)");
-        
+
         return hexHandle;
       } catch (error: any) {
         console.error("Error getting encrypted key:", error);
@@ -219,7 +217,7 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         return null;
       }
     },
-    [contractInfo, publicClient]
+    [contractInfo, publicClient],
   );
 
   // Check if file exists
@@ -241,7 +239,7 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         return false;
       }
     },
-    [contractInfo, publicClient]
+    [contractInfo, publicClient],
   );
 
   // Get file metadata
@@ -263,7 +261,7 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         return null;
       }
     },
-    [contractInfo, publicClient]
+    [contractInfo, publicClient],
   );
 
   return {
@@ -279,4 +277,3 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
     getFileMetadata,
   };
 }
-

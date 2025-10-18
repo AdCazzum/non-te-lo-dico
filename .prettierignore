@@ -1,0 +1,47 @@
+# Prettier ignore file
+node_modules
+.next
+.vercel
+out
+dist
+build
+coverage
+
+# Hardhat has its own prettier config with solidity plugin
+packages/hardhat/**
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Build artifacts
+*.tsbuildinfo
+.turbo
+
+# Compiled output
+**/.next/**
+**/dist/**
+**/build/**
+**/out/**
+
+# Dependencies
+**/node_modules/**
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cache
+.cache
+.eslintcache
+
+# Generated files
+**/generated/**
+**/typechain-types/**
+**/deployments/**
+**/artifacts/**
+**/cache/**
+
+# Config files that shouldn't be formatted
+pnpm-workspace.yaml

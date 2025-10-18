@@ -17,7 +17,8 @@
     "deploy:localhost": "pnpm hardhat:deploy && pnpm generate",
     "deploy:sepolia": "pnpm hardhat:deploy:sepolia && pnpm generate",
     "fork": "pnpm hardhat:fork",
-    "format": "pnpm next:format && pnpm hardhat:format",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "sdk:build": "pnpm --filter ./packages/fhevm-sdk build",
     "sdk:watch": "pnpm --filter ./packages/fhevm-sdk watch",
     "sdk:test": "pnpm --filter ./packages/fhevm-sdk test",
@@ -39,7 +40,9 @@
     "hardhat:test": "pnpm --filter ./packages/hardhat test",
     "hardhat:verify": "pnpm --filter ./packages/hardhat verify",
     "hardhat:verify:sepolia": "pnpm --filter ./packages/hardhat verify:sepolia",
-    "lint": "pnpm next:lint && pnpm hardhat:lint",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs --max-warnings 50",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs --fix",
+    "lint:all": "pnpm lint && pnpm next:lint && pnpm hardhat:lint",
     "next:build": "pnpm --filter ./packages/nextjs build",
     "next:check-types": "pnpm --filter ./packages/nextjs check-types",
     "next:format": "pnpm --filter ./packages/nextjs format",
@@ -59,10 +62,20 @@
     "hardhat-deploy": "^0.11.45"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "~3.2.0",
+    "@trivago/prettier-plugin-sort-imports": "~4.3.0",
     "@types/node": "^22.7.5",
-    "prettier": "^3.6.2",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.2.2",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "lint-staged": "^15.2.10",
+    "next": "15.2.5",
+    "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "5.8.3"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
