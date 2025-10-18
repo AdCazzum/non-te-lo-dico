@@ -24,6 +24,7 @@
     "sdk:test:watch": "pnpm --filter ./packages/fhevm-sdk test:watch",
     "sdk:clean": "pnpm --filter ./packages/fhevm-sdk clean",
     "generate": "ts-node ./scripts/generateTsAbis.ts",
+    "test:pinata": "node ./scripts/test-pinata.js",
     "hardhat:chain": "pnpm --filter ./packages/hardhat chain",
     "hardhat:check-types": "pnpm --filter ./packages/hardhat check-types",
     "hardhat:clean": "pnpm --filter ./packages/hardhat clean",
