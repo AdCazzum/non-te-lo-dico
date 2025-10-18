@@ -1,33 +1,41 @@
 @import "tailwindcss";
 
-/* Minimal Color Palette - Inspired by qasimodo.com */
+/* Dark Mode Minimal Design - Inspired by qasimodo.com */
 :root {
-  /* Primary Colors */
-  --color-background: #ffffff;
-  --color-foreground: #0a0a0a;
-  --color-muted: #6b7280;
+  /* Dark Theme Colors */
+  --color-background: #0f0f0f;
+  --color-surface: #1a1a1a;
+  --color-surface-hover: #242424;
+  --color-foreground: #e5e5e5;
+  --color-muted: #a3a3a3;
   
-  /* Accent Colors */
-  --color-primary: #0a0a0a;
-  --color-primary-hover: #404040;
-  --color-secondary: #f5f5f5;
-  --color-border: #e5e5e5;
+  /* Accent Color - Warm Yellow */
+  --color-primary: #f5c842;
+  --color-primary-hover: #f7d563;
+  --color-primary-dark: #d4aa2a;
+  
+  /* UI Elements */
+  --color-border: #2a2a2a;
+  --color-border-hover: #3a3a3a;
   
   /* Status Colors */
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #3b82f6;
+  --color-success: #4ade80;
+  --color-warning: #fb923c;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
   
   /* Border Radius */
-  --radius-sm: 0.25rem;
+  --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   
-  /* Shadows - Subtle */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05);
+  /* Shadows - Subtle for dark mode */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+  
+  /* Spacing - Increased */
+  --spacing-unit: 1rem;
 }
 
 * {
@@ -55,6 +63,7 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
   margin: 0;
   letter-spacing: -0.02em;
+  color: var(--color-foreground);
 }
 
 h1 {
@@ -85,29 +94,47 @@ p {
 
 a {
   transition: color 0.2s ease;
+  color: var(--color-primary);
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* Card links should not inherit link color changes */
+a.card {
+  color: inherit;
+}
+
+a.card:hover {
+  color: inherit;
+}
+
+a.card:focus {
+  color: inherit;
 }
 
 button {
   transition: all 0.2s ease;
 }
 
-/* Container with minimal padding */
+/* Container with increased padding */
 .container-minimal {
   max-width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
-/* Buttons - Minimalist style */
+/* Buttons - Dark mode style */
 .btn-primary {
-  padding: 0.75rem 1.5rem;
+  padding: 0.875rem 1.75rem;
   background-color: var(--color-primary);
-  color: white;
+  color: #000;
   border-radius: var(--radius-md);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   letter-spacing: 0.01em;
   border: none;
   cursor: pointer;
@@ -115,70 +142,97 @@ button {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
+  background-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-primary:focus:not(:disabled) {
+  outline: none;
+  background-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(245, 200, 66, 0.4);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  background-color: var(--color-primary-dark);
 }
 
 .btn-primary:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .btn-secondary {
-  padding: 0.75rem 1.5rem;
-  background-color: var(--color-secondary);
+  padding: 0.875rem 1.75rem;
+  background-color: var(--color-surface);
   color: var(--color-foreground);
   border-radius: var(--radius-md);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   letter-spacing: 0.01em;
-  border: none;
+  border: 1px solid var(--color-border);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background-color: #e5e5e5;
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-border-hover);
 }
 
 .btn-outline {
-  padding: 0.75rem 1.5rem;
+  padding: 0.875rem 1.75rem;
   background-color: transparent;
   color: var(--color-foreground);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   letter-spacing: 0.01em;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-outline:hover {
-  border-color: var(--color-foreground);
+  border-color: var(--color-primary);
+  background-color: rgba(245, 200, 66, 0.05);
 }
 
-/* Cards - Minimal with subtle shadow */
+/* Cards - Dark mode with subtle shadow */
 .card {
-  background-color: white;
+  background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
+  border-color: var(--color-border-hover);
   box-shadow: var(--shadow-md);
 }
 
-/* Input fields - Clean and minimal */
+/* Link cards - Keep yellow circles visible on hover/focus */
+a.card:hover .bg-\[var\(--color-primary\)\],
+a.card:focus .bg-\[var\(--color-primary\)\] {
+  background-color: var(--color-primary) !important;
+}
+
+a.card:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Input fields - Dark mode */
 .input-field {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1.125rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background-color: white;
+  background-color: var(--color-surface);
   color: var(--color-foreground);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   transition: all 0.2s ease;
 }
 
@@ -188,24 +242,63 @@ button {
 
 .input-field:focus {
   outline: none;
-  border-color: var(--color-foreground);
-  box-shadow: 0 0 0 1px var(--color-foreground);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(245, 200, 66, 0.1);
 }
 
 .input-field:disabled {
-  background-color: #f9f9f9;
+  background-color: #161616;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
-/* Section spacing - Minimal but breathable */
+/* Section spacing - Increased */
 .section-padding {
-  padding-top: 3rem;
-  padding-bottom: 3rem;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
 }
 
 /* Text styles */
 .text-muted {
   color: var(--color-muted);
+}
+
+/* Status/Alert Cards */
+.alert-success {
+  background-color: rgba(74, 222, 128, 0.1);
+  border-left: 4px solid var(--color-success);
+}
+
+.alert-error {
+  background-color: rgba(248, 113, 113, 0.1);
+  border-left: 4px solid var(--color-error);
+}
+
+.alert-warning {
+  background-color: rgba(251, 146, 60, 0.1);
+  border-left: 4px solid var(--color-warning);
+}
+
+.alert-info {
+  background-color: rgba(96, 165, 250, 0.1);
+  border-left: 4px solid var(--color-info);
+}
+
+/* Group spacing - Add more space between elements */
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.space-y-8 > * + * {
+  margin-top: 2rem;
+}
+
+.gap-6 {
+  gap: 1.5rem;
+}
+
+.gap-8 {
+  gap: 2rem;
 }
 
 /* Responsive text sizes */
@@ -223,13 +316,13 @@ button {
   }
   
   .section-padding {
-    padding-top: 4rem;
-    padding-bottom: 4rem;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
   }
   
   .container-minimal {
-    padding-left: 2rem;
-    padding-right: 2rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
   }
 }
 
@@ -243,8 +336,8 @@ button {
   }
   
   .section-padding {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
+    padding-top: 6rem;
+    padding-bottom: 6rem;
   }
   
   .container-minimal {

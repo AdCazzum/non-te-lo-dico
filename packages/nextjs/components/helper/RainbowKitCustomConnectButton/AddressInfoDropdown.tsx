@@ -44,14 +44,14 @@ export const AddressInfoDropdown = ({ address, ensAvatar, displayName }: Address
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white border border-[var(--color-border)] rounded-lg shadow-lg overflow-hidden z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-lg overflow-hidden z-50">
           {selectingNetwork ? (
             <NetworkOptions hidden={false} />
           ) : (
             <div className="py-1">
               {allowedNetworks.length > 1 && (
                 <button
-                  className="w-full px-4 py-3 text-left text-sm hover:bg-[var(--color-secondary)] flex items-center gap-3 transition-colors"
+                  className="w-full px-4 py-3 text-left text-sm hover:bg-[var(--color-surface-hover)] flex items-center gap-3 transition-colors text-[var(--color-foreground)]"
                   type="button"
                   onClick={() => setSelectingNetwork(true)}
                 >
@@ -60,7 +60,7 @@ export const AddressInfoDropdown = ({ address, ensAvatar, displayName }: Address
                 </button>
               )}
               <button
-                className="w-full px-4 py-3 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-3 transition-colors"
+                className="w-full px-4 py-3 text-left text-sm hover:bg-red-900/20 text-red-400 flex items-center gap-3 transition-colors"
                 type="button"
                 onClick={() => {
                   disconnect();

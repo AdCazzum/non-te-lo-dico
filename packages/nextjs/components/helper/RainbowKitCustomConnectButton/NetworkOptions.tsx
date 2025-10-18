@@ -21,7 +21,7 @@ export const NetworkOptions = ({ hidden = false }: NetworkOptionsProps) => {
         .map(allowedNetwork => (
           <button
             key={allowedNetwork.id}
-            className="w-full px-4 py-3 text-left text-sm hover:bg-[var(--color-secondary)] flex items-center gap-3 transition-colors"
+            className="w-full px-4 py-3 text-left text-sm hover:bg-[var(--color-surface-hover)] flex items-center gap-3 transition-colors text-[var(--color-foreground)]"
             type="button"
             onClick={() => {
               switchChain?.({ chainId: allowedNetwork.id });

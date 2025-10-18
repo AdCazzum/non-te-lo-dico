@@ -24,11 +24,11 @@ export const WrongNetworkDropdown = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white border border-[var(--color-border)] rounded-lg shadow-lg overflow-hidden z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-lg overflow-hidden z-50">
           <div className="py-1">
             <NetworkOptions hidden={false} />
             <button
-              className="w-full px-4 py-3 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-3 transition-colors border-t border-[var(--color-border)]"
+              className="w-full px-4 py-3 text-left text-sm hover:bg-red-900/20 text-red-400 flex items-center gap-3 transition-colors border-t border-[var(--color-border)]"
               type="button"
               onClick={() => {
                 disconnect();

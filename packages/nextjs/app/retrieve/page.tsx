@@ -340,10 +340,10 @@ export default function RetrievePage() {
           )}
 
           {fhevmStatus === "loading" && (
-            <div className="card p-4 border-l-4 border-blue-500 bg-blue-50">
+            <div className="card p-4 border-l-4 border-[var(--color-primary)] bg-[var(--color-surface)]">
               <div className="flex items-start gap-3">
-                <Icon name="loading" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-blue-900">Initializing FHEVM SDK... Please wait.</p>
+                <Icon name="loading" size={20} className="text-[var(--color-primary)] flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-[var(--color-foreground)]">Initializing FHEVM SDK... Please wait.</p>
               </div>
             </div>
           )}
@@ -383,17 +383,17 @@ export default function RetrievePage() {
               >
                 {isProcessing ? (
                   <>
-                    <Icon name="loading" size={18} />
+                    <Icon name="loading" size={18} className="text-[#0f0f0f]" />
                     Processing...
                   </>
                 ) : fhevmStatus !== "ready" ? (
                   <>
-                    <Icon name="loading" size={18} />
+                    <Icon name="loading" size={18} className="text-[#0f0f0f]" />
                     Waiting for FHEVM...
                   </>
                 ) : !ethersSigner ? (
                   <>
-                    <Icon name="loading" size={18} />
+                    <Icon name="loading" size={18} className="text-[#0f0f0f]" />
                     Waiting for Wallet...
                   </>
                 ) : (
@@ -435,10 +435,10 @@ export default function RetrievePage() {
 
           {/* Decryption Progress */}
           {isDecrypting && (
-            <div className="card p-6 border-l-4 border-blue-500 bg-blue-50">
+            <div className="card p-6 border-l-4 border-[var(--color-primary)] bg-[var(--color-surface)]">
               <div className="flex items-center gap-3">
-                <Icon name="loading" size={24} className="text-blue-600" />
-                <p className="text-sm text-blue-900 font-medium">
+                <Icon name="loading" size={24} className="text-[var(--color-primary)]" />
+                <p className="text-sm text-[var(--color-foreground)] font-medium">
                   {decryptMessage || "Decrypting encryption key with FHEVM..."}
                 </p>
               </div>

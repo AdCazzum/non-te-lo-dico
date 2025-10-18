@@ -198,10 +198,10 @@ export default function UploadPage() {
           )}
 
           {fhevmStatus === "loading" && (
-            <div className="card p-4 border-l-4 border-blue-500 bg-blue-50">
+            <div className="card p-4 border-l-4 border-[var(--color-primary)] bg-[var(--color-surface)]">
               <div className="flex items-start gap-3">
-                <Icon name="loading" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-blue-900">Initializing FHEVM...</p>
+                <Icon name="loading" size={20} className="text-[var(--color-primary)] flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-[var(--color-foreground)]">Initializing FHEVM...</p>
               </div>
             </div>
           )}
@@ -263,7 +263,7 @@ export default function UploadPage() {
               >
                 {isProcessing || isUploading ? (
                   <>
-                    <Icon name="loading" size={18} />
+                    <Icon name="loading" size={18} className="text-[#0f0f0f]" />
                     Processing...
                   </>
                 ) : (
@@ -376,7 +376,7 @@ export default function UploadPage() {
             </div>
             
             {storage.isLoading ? (
-              <div className="flex items-center justify-center gap-2 py-8 text-muted">
+              <div className="flex items-center justify-center gap-2 py-8 text-[var(--color-primary)]">
                 <Icon name="loading" size={20} />
                 <span>Loading...</span>
               </div>
