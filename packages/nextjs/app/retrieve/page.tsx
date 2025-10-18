@@ -45,12 +45,14 @@ export default function RetrievePage() {
   const [fileMetadata, setFileMetadata] = useState<{ owner: string; timestamp: bigint } | null>(null);
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [decryptedContent, setDecryptedContent] = useState<string | null>(null);
+  const [decryptedPrice, setDecryptedPrice] = useState<bigint | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Refs to prevent multiple processing
   const hasTriggeredDecrypt = useRef(false);
   const processedHandles = useRef<Set<string>>(new Set());
+  const lastAutoLoadedCid = useRef<string | null>(null);
 
   // Decryption state - following ZAMA SDK pattern
   const [decryptRequests, setDecryptRequests] = useState<Array<{ handle: string; contractAddress: `0x${string}` }>>([]);
@@ -137,8 +139,11 @@ export default function RetrievePage() {
           throw new Error("Access denied: You don't have permission to decrypt this file");
         }
 
+        // Step 3b: Try to get encrypted price
+        const encryptedPriceHandle = await storage.getEncryptedPrice(cidToUse);
+
         setHasAccess(true);
-        notification.info("Access granted! Decrypting key...");
+        notification.info("Access granted! Decrypting key and price...");
 
         // Debug logging (uncomment if needed)
         // console.log("Encrypted key handle received:", encryptedKeyHandle);
@@ -154,14 +159,24 @@ export default function RetrievePage() {
           throw new Error(`Invalid handle format: expected hex string starting with 0x, got ${encryptedKeyHandle}`);
         }
 
-        // Step 4: Decrypt the encryption key using FHEVM - following ZAMA SDK pattern
-        // Set the decrypt request
-        setDecryptRequests([
+        // Step 4: Decrypt the encryption key and price using FHEVM - following ZAMA SDK pattern
+        // Set the decrypt requests
+        const requests = [
           {
             handle: encryptedKeyHandle,
             contractAddress: storage.contractAddress as `0x${string}`,
           },
-        ]);
+        ];
+
+        // Add price handle if available
+        if (encryptedPriceHandle && typeof encryptedPriceHandle === "string" && encryptedPriceHandle.startsWith("0x")) {
+          requests.push({
+            handle: encryptedPriceHandle,
+            contractAddress: storage.contractAddress as `0x${string}`,
+          });
+        }
+
+        setDecryptRequests(requests);
 
         // Reset the trigger flag for new decryption
         hasTriggeredDecrypt.current = false;
@@ -181,7 +196,16 @@ export default function RetrievePage() {
   // Auto-load file from URL
   useEffect(() => {
     // Wait for everything to be ready before auto-loading
-    if (cidFromUrl && isConnected && fhevmInstance && fhevmStatus === "ready" && ethersSigner) {
+    // Only load if we haven't loaded this specific CID yet
+    if (
+      cidFromUrl &&
+      isConnected &&
+      fhevmInstance &&
+      fhevmStatus === "ready" &&
+      ethersSigner &&
+      lastAutoLoadedCid.current !== cidFromUrl
+    ) {
+      lastAutoLoadedCid.current = cidFromUrl;
       // Delay to ensure SDK is fully initialized and avoid RelayerSDKLoader errors
       const timer = setTimeout(() => {
         handleRetrieve(cidFromUrl);
@@ -189,7 +213,7 @@ export default function RetrievePage() {
 
       return () => clearTimeout(timer);
     }
-  }, [cidFromUrl, isConnected, fhevmInstance, fhevmStatus, ethersSigner, handleRetrieve]);
+  }, [cidFromUrl, isConnected, fhevmInstance, fhevmStatus, ethersSigner]);
 
   // Effect to trigger decryption when requests are set
   useEffect(() => {
@@ -212,16 +236,16 @@ export default function RetrievePage() {
     const processDecryptedKey = async () => {
       if (!currentCID || !decryptRequests.length) return;
 
-      const handle = decryptRequests[0].handle;
-      const decryptedKey = decryptResults[handle];
+      const keyHandle = decryptRequests[0].handle;
+      const decryptedKey = decryptResults[keyHandle];
 
       // Check if we've already processed this handle
-      if (decryptedKey === undefined || processedHandles.current.has(handle)) {
+      if (decryptedKey === undefined || processedHandles.current.has(keyHandle)) {
         return;
       }
 
       // Mark this handle as processed
-      processedHandles.current.add(handle);
+      processedHandles.current.add(keyHandle);
 
       try {
         // Convert bigint to number (our encryption key is a 32-bit uint)
@@ -235,6 +259,29 @@ export default function RetrievePage() {
           throw new Error("Unexpected boolean value for encryption key");
         } else {
           encryptionKey = decryptedKey as number;
+        }
+
+        // Process price if available
+        if (decryptRequests.length > 1) {
+          const priceHandle = decryptRequests[1].handle;
+          const decryptedPriceValue = decryptResults[priceHandle];
+
+          if (decryptedPriceValue !== undefined && !processedHandles.current.has(priceHandle)) {
+            processedHandles.current.add(priceHandle);
+
+            let priceValue: bigint;
+            if (typeof decryptedPriceValue === "bigint") {
+              priceValue = decryptedPriceValue;
+            } else if (typeof decryptedPriceValue === "string") {
+              priceValue = BigInt(decryptedPriceValue);
+            } else if (typeof decryptedPriceValue === "number") {
+              priceValue = BigInt(decryptedPriceValue);
+            } else {
+              priceValue = BigInt(0);
+            }
+
+            setDecryptedPrice(priceValue);
+          }
         }
 
         notification.success("Key decrypted successfully!");
@@ -448,6 +495,18 @@ export default function RetrievePage() {
                     <p className="text-sm">{new Date(Number(fileMetadata.timestamp) * 1000).toLocaleString()}</p>
                   </div>
                 </div>
+                {decryptedPrice !== null && (
+                  <div className="bg-[var(--color-secondary)] p-4 rounded-lg">
+                    <p className="text-xs text-muted mb-2">Dataset Price (Decrypted)</p>
+                    <div className="flex items-center gap-2">
+                      <Icon name="info" size={16} className="text-[var(--color-primary)]" />
+                      <p className="text-sm font-semibold">
+                        {(Number(decryptedPrice) / 1e18).toFixed(6)} ETH
+                      </p>
+                      <span className="text-xs text-muted">({decryptedPrice.toString()} wei)</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -527,11 +586,13 @@ export default function RetrievePage() {
                 <h3>Dataset Content</h3>
               </div>
 
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-800">
-                  <Icon name="unlock" size={16} className="inline mr-2" />
-                  Successfully decrypted! This data has been shared with you for AI training or research purposes.
-                </p>
+              <div className="mb-6 card p-4 border-l-4 border-green-500 bg-green-50">
+                <div className="flex items-start gap-3">
+                  <Icon name="unlock" size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-green-900">
+                    Successfully decrypted! This data has been shared with you for AI training or research purposes.
+                  </p>
+                </div>
               </div>
 
               <div className="card bg-[var(--color-secondary)] p-6 mb-6 border-2 border-[var(--color-border)]">

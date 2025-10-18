@@ -10,6 +10,7 @@ export interface FileMetadata {
   cid: string;
   owner: string;
   timestamp: bigint;
+  encryptedPrice?: string; // Hex string of encrypted price handle
 }
 
 export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
@@ -74,7 +75,7 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
 
   // Store file on blockchain
   const storeFile = useCallback(
-    async (cid: string, encryptionKey: number) => {
+    async (cid: string, encryptionKey: number, priceInWei: bigint) => {
       if (!contractInfo || !fhevmInstance || !connectedAddress) {
         notification.error("Wallet not connected or FHEVM not initialized");
         return false;
@@ -83,7 +84,7 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
       try {
         // Encrypt the key with FHEVM
         const input = fhevmInstance.createEncryptedInput(contractInfo.address as `0x${string}`, connectedAddress);
-        input.add32(encryptionKey);
+        input.add256(encryptionKey);
         const encryptedInput = await input.encrypt();
 
         console.log("Encrypted input:", encryptedInput);
@@ -103,12 +104,32 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
         console.log("Converted handle:", encryptedHandle);
         console.log("Converted inputProof:", inputProof);
 
+        // Encrypt the price with FHEVM
+        const priceInput = fhevmInstance.createEncryptedInput(contractInfo.address as `0x${string}`, connectedAddress);
+        priceInput.add256(priceInWei);
+        const encryptedPriceInput = await priceInput.encrypt();
+
+        console.log("Encrypted price input:", encryptedPriceInput);
+
+        const encryptedPriceHandle =
+          typeof encryptedPriceInput.handles[0] === "string"
+            ? encryptedPriceInput.handles[0]
+            : toHex(encryptedPriceInput.handles[0]);
+
+        const priceInputProof =
+          typeof encryptedPriceInput.inputProof === "string"
+            ? encryptedPriceInput.inputProof
+            : toHex(encryptedPriceInput.inputProof);
+
+        console.log("Converted price handle:", encryptedPriceHandle);
+        console.log("Converted price inputProof:", priceInputProof);
+
         // Call storeFile
         const hash = await writeContractAsync({
           address: contractInfo.address as `0x${string}`,
           abi: contractInfo.abi,
           functionName: "storeFile",
-          args: [cid, encryptedHandle, inputProof],
+          args: [cid, encryptedHandle, inputProof, encryptedPriceHandle, priceInputProof],
         });
 
         // Wait for transaction
@@ -264,6 +285,58 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
     [contractInfo, publicClient],
   );
 
+  // Get encrypted price
+  const getEncryptedPrice = useCallback(
+    async (cid: string) => {
+      if (!contractInfo || !publicClient) {
+        return null;
+      }
+
+      try {
+        const encryptedPrice = await publicClient.readContract({
+          address: contractInfo.address as `0x${string}`,
+          abi: contractInfo.abi,
+          functionName: "getEncryptedPrice",
+          args: [cid],
+        });
+
+        console.log("Raw encrypted price from contract:", encryptedPrice, "Type:", typeof encryptedPrice);
+
+        // euint32 is returned as bytes32, which viem gives us as a hex string
+        let hexHandle: string;
+
+        if (typeof encryptedPrice === "string") {
+          hexHandle = encryptedPrice.startsWith("0x") ? encryptedPrice : `0x${encryptedPrice}`;
+        } else if (typeof encryptedPrice === "bigint") {
+          hexHandle = toHex(encryptedPrice, { size: 32 });
+        } else if (typeof encryptedPrice === "object" && encryptedPrice !== null) {
+          const value = Array.isArray(encryptedPrice) ? encryptedPrice[0] : (encryptedPrice as any).value || encryptedPrice;
+          if (typeof value === "string") {
+            hexHandle = value.startsWith("0x") ? value : `0x${value}`;
+          } else if (typeof value === "bigint") {
+            hexHandle = toHex(value, { size: 32 });
+          } else {
+            hexHandle = String(value);
+            if (!hexHandle.startsWith("0x")) {
+              hexHandle = `0x${hexHandle}`;
+            }
+          }
+        } else {
+          hexHandle = toHex(encryptedPrice as any);
+        }
+
+        console.log("Converted price hex handle:", hexHandle);
+
+        return hexHandle;
+      } catch (error: any) {
+        console.error("Error getting encrypted price:", error);
+        notification.error(error?.message || "Failed to get price. You may not have access.");
+        return null;
+      }
+    },
+    [contractInfo, publicClient],
+  );
+
   return {
     contractAddress: contractInfo?.address,
     contractAbi: contractInfo?.abi,
@@ -273,6 +346,7 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
     storeFile,
     grantAccess,
     getEncryptedKey,
+    getEncryptedPrice,
     fileExists,
     getFileMetadata,
   };

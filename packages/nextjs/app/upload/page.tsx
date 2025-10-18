@@ -46,6 +46,7 @@ export default function UploadPage() {
   const [uploadedCID, setUploadedCID] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [granteeAddress, setGranteeAddress] = useState("");
+  const [priceInETH, setPriceInETH] = useState<string>("");
 
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,6 +62,11 @@ export default function UploadPage() {
   const handleUpload = async () => {
     if (!selectedFile) {
       notification.error("Please select a file");
+      return;
+    }
+
+    if (!priceInETH || parseFloat(priceInETH) <= 0) {
+      notification.error("Please enter a valid price in ETH");
       return;
     }
 
@@ -84,8 +90,13 @@ export default function UploadPage() {
 
       setUploadedCID(cid);
 
-      // Step 4: Encrypt the key with ZAMA and store on blockchain
-      const success = await storage.storeFile(cid, key);
+      // Step 4: Convert price from ETH to wei
+      const priceInWei = BigInt(Math.floor(parseFloat(priceInETH) * 1e18));
+      console.log("Price in ETH:", priceInETH);
+      console.log("Price in wei:", priceInWei.toString());
+
+      // Step 5: Encrypt the key and price with ZAMA and store on blockchain
+      const success = await storage.storeFile(cid, key, priceInWei);
 
       if (success) {
         notification.success("File stored on blockchain!");
@@ -264,9 +275,32 @@ export default function UploadPage() {
                 )}
               </div>
 
+              <div>
+                <label className="block text-sm font-medium mb-3">Set Dataset Price (in ETH)</label>
+                <p className="text-xs text-muted mb-3">
+                  Enter the price for accessing this dataset. The price will be encrypted using ZAMA&apos;s FHE technology.
+                </p>
+                <input
+                  type="number"
+                  step="0.001"
+                  min="0"
+                  value={priceInETH}
+                  onChange={e => setPriceInETH(e.target.value)}
+                  placeholder="0.1"
+                  className="input-field"
+                  disabled={isProcessing || isUploading}
+                />
+                {priceInETH && parseFloat(priceInETH) > 0 && (
+                  <div className="mt-3 flex items-center gap-2 text-sm text-muted">
+                    <Icon name="info" size={16} />
+                    <span>Price: {priceInETH} ETH ({(parseFloat(priceInETH) * 1e18).toFixed(0)} wei)</span>
+                  </div>
+                )}
+              </div>
+
               <button
                 onClick={handleUpload}
-                disabled={!selectedFile || isProcessing || isUploading || !fhevmInstance}
+                disabled={!selectedFile || !priceInETH || parseFloat(priceInETH) <= 0 || isProcessing || isUploading || !fhevmInstance}
                 className="btn-primary w-full flex items-center justify-center gap-2"
               >
                 {isProcessing || isUploading ? (

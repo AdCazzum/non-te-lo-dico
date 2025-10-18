@@ -34,6 +34,12 @@ const DappWrapper = ({ children }: { children: React.ReactNode }) => {
       <body className={roboto.className}>
         <ThemeProvider enableSystem>
           <DappWrapperWithProviders>{children}</DappWrapperWithProviders>
+          {/* Footer */}
+          <div className="w-full pb-1 pt-2 text-right pr-4">
+            <span className="text-xs text-gray-500 dark:text-gray-400 inline-flex items-center gap-1">
+              Built with <i className="fa-solid fa-heart text-yellow-500"></i> using ZAMA FHE and IPFS
+            </span>
+          </div>
         </ThemeProvider>
       </body>
     </html>

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {FHE, euint32, externalEuint32} from "@fhevm/solidity/lib/FHE.sol";
+import {FHE, euint256, externalEuint256} from "@fhevm/solidity/lib/FHE.sol";
 import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 
 /// @title FHE IPFS Storage
@@ -13,7 +13,8 @@ contract FHEIPFSStorage is SepoliaConfig {
     /// @notice Struct to store encrypted file information
     struct FileData {
         string cid;              // IPFS CID of the encrypted file
-        euint32 encryptedKey;    // Encrypted decryption key (encrypted with FHEVM)
+        euint256 encryptedKey;   // Encrypted decryption key (encrypted with FHEVM)
+        euint256 price;          // Encrypted price in wei (encrypted with FHEVM)
         address owner;           // File owner address
         uint256 timestamp;       // Creation timestamp
     }
@@ -40,21 +41,29 @@ contract FHEIPFSStorage is SepoliaConfig {
     /// @param _cid The IPFS CID of the encrypted file
     /// @param _encryptedKey The encrypted decryption key
     /// @param _inputProof The proof for the encrypted key
+    /// @param _encryptedPrice The encrypted price in wei
+    /// @param _priceInputProof The proof for the encrypted price
     function storeFile(
         string calldata _cid, 
-        externalEuint32 _encryptedKey, 
-        bytes calldata _inputProof
+        externalEuint256 _encryptedKey, 
+        bytes calldata _inputProof,
+        externalEuint256 _encryptedPrice,
+        bytes calldata _priceInputProof
     ) external {
         require(bytes(_cid).length > 0, "CID cannot be empty");
         require(!cidExists[_cid], "File with this CID already exists");
         
         // Convert external encrypted key to internal format
-        euint32 encryptedKey = FHE.fromExternal(_encryptedKey, _inputProof);
+        euint256 encryptedKey = FHE.fromExternal(_encryptedKey, _inputProof);
+        
+        // Convert external encrypted price to internal format
+        euint256 encryptedPrice = FHE.fromExternal(_encryptedPrice, _priceInputProof);
         
         // Store file data
         files[_cid] = FileData({
             cid: _cid,
             encryptedKey: encryptedKey,
+            price: encryptedPrice,
             owner: msg.sender,
             timestamp: block.timestamp
         });
@@ -65,6 +74,9 @@ contract FHEIPFSStorage is SepoliaConfig {
         // Grant access permissions using ZAMA ACL
         FHE.allowThis(encryptedKey);
         FHE.allow(encryptedKey, msg.sender);
+        
+        FHE.allowThis(encryptedPrice);
+        FHE.allow(encryptedPrice, msg.sender);
         
         emit FileStored(_cid, msg.sender, block.timestamp);
     }
@@ -80,6 +92,7 @@ contract FHEIPFSStorage is SepoliaConfig {
         
         // Grant access using ZAMA ACL
         FHE.allow(files[_cid].encryptedKey, _grantee);
+        FHE.allow(files[_cid].price, _grantee);
         
         emit AccessGranted(_cid, msg.sender, _grantee);
     }
@@ -113,9 +126,18 @@ contract FHEIPFSStorage is SepoliaConfig {
     /// @param _cid The IPFS CID of the file
     /// @return The encrypted key (will fail if caller doesn't have ACL permission)
     /// @dev Access control is enforced by ZAMA ACL system during decryption
-    function getEncryptedKey(string calldata _cid) external view returns (euint32) {
+    function getEncryptedKey(string calldata _cid) external view returns (euint256) {
         require(cidExists[_cid], "File does not exist");
         return files[_cid].encryptedKey;
+    }
+    
+    /// @notice Get encrypted price (only for authorized users)
+    /// @param _cid The IPFS CID of the file
+    /// @return The encrypted price (will fail if caller doesn't have ACL permission)
+    /// @dev Access control is enforced by ZAMA ACL system during decryption
+    function getEncryptedPrice(string calldata _cid) external view returns (euint256) {
+        require(cidExists[_cid], "File does not exist");
+        return files[_cid].price;
     }
     
     /// @notice Get all CIDs owned by a specific address

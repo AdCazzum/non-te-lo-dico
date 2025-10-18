@@ -18,7 +18,7 @@ export const Header = () => {
       name: "Home",
       icon: "home",
       path: "/",
-      description: "Platform overview & how it works",
+      description: "How the platform works",
     },
     {
       name: "Upload Dataset",

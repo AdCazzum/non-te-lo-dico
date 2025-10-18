@@ -6,341 +6,8 @@ import { GenericContractsDeclaration } from "~~/utils/helper/contract";
 
 const deployedContracts = {
   11155111: {
-    FHEDataStorage: {
-      address: "0x9481c2368a828c3E7E7979D06DAde41BB8073263",
-      abi: [
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "itemIndex",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "requester",
-              type: "address",
-            },
-          ],
-          name: "DataAccessGranted",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "itemIndex",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "requester",
-              type: "address",
-            },
-          ],
-          name: "DataAccessRevoked",
-          type: "event",
-        },
-        {
-          anonymous: false,
-          inputs: [
-            {
-              indexed: true,
-              internalType: "uint256",
-              name: "itemIndex",
-              type: "uint256",
-            },
-            {
-              indexed: true,
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "timestamp",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "string",
-              name: "ipfsUrl",
-              type: "string",
-            },
-          ],
-          name: "DataStored",
-          type: "event",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_owner",
-              type: "address",
-            },
-          ],
-          name: "getDataIndicesByOwner",
-          outputs: [
-            {
-              internalType: "uint256[]",
-              name: "",
-              type: "uint256[]",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_itemIndex",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "_requester",
-              type: "address",
-            },
-          ],
-          name: "getDataItem",
-          outputs: [
-            {
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              internalType: "string",
-              name: "ipfsUrl",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "timestamp",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_itemIndex",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "_requester",
-              type: "address",
-            },
-          ],
-          name: "getEncryptedKey",
-          outputs: [
-            {
-              internalType: "euint32",
-              name: "",
-              type: "bytes32",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_owner",
-              type: "address",
-            },
-          ],
-          name: "getMyDataIndices",
-          outputs: [
-            {
-              internalType: "uint256[]",
-              name: "",
-              type: "uint256[]",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_itemIndex",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "_requester",
-              type: "address",
-            },
-          ],
-          name: "getMyDataItem",
-          outputs: [
-            {
-              internalType: "address",
-              name: "owner",
-              type: "address",
-            },
-            {
-              internalType: "string",
-              name: "ipfsUrl",
-              type: "string",
-            },
-            {
-              internalType: "uint256",
-              name: "timestamp",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "getTotalDataItems",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_itemIndex",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "_requester",
-              type: "address",
-            },
-          ],
-          name: "grantItemAccess",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_itemIndex",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "_requester",
-              type: "address",
-            },
-          ],
-          name: "hasItemAccess",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "protocolId",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "pure",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "_itemIndex",
-              type: "uint256",
-            },
-            {
-              internalType: "address",
-              name: "_requester",
-              type: "address",
-            },
-          ],
-          name: "revokeItemAccess",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "_ipfsUrl",
-              type: "string",
-            },
-            {
-              internalType: "externalEuint32",
-              name: "_encryptedKey",
-              type: "bytes32",
-            },
-            {
-              internalType: "bytes",
-              name: "_inputProof",
-              type: "bytes",
-            },
-          ],
-          name: "saveDataItem",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "itemIndex",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-      ],
-      inheritedFunctions: {},
-      deployedOnBlock: 9438301,
-    },
     FHEIPFSStorage: {
-      address: "0x39300A490933F8A3B2ACbAE23c551F224b3083Aa",
+      address: "0x0dacF49E290AbC1C7Be7aDCf75425EFEc2D4B2F2",
       abi: [
         {
           anonymous: false,
@@ -447,7 +114,26 @@ const deployedContracts = {
           name: "getEncryptedKey",
           outputs: [
             {
-              internalType: "euint32",
+              internalType: "euint256",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "_cid",
+              type: "string",
+            },
+          ],
+          name: "getEncryptedPrice",
+          outputs: [
+            {
+              internalType: "euint256",
               name: "",
               type: "bytes32",
             },
@@ -555,13 +241,23 @@ const deployedContracts = {
               type: "string",
             },
             {
-              internalType: "externalEuint32",
+              internalType: "externalEuint256",
               name: "_encryptedKey",
               type: "bytes32",
             },
             {
               internalType: "bytes",
               name: "_inputProof",
+              type: "bytes",
+            },
+            {
+              internalType: "externalEuint256",
+              name: "_encryptedPrice",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes",
+              name: "_priceInputProof",
               type: "bytes",
             },
           ],
@@ -572,7 +268,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9438410,
+      deployedOnBlock: 9440494,
     },
   },
 } as const;
