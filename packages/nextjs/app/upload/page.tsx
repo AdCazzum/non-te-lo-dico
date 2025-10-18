@@ -70,12 +70,10 @@ export default function UploadPage() {
       // Step 1: Generate random encryption key
       const key = generateEncryptionKey();
       setEncryptionKey(key);
-      notification.info("Generated encryption key");
 
       // Step 2: Encrypt file
       const fileContent = await selectedFile.arrayBuffer();
       const encryptedContent = await encryptFile(fileContent, key);
-      notification.info("File encrypted successfully");
 
       // Step 3: Upload encrypted file to IPFS
       const cid = await uploadToIPFS(encryptedContent, `encrypted_${selectedFile.name}`);
@@ -85,7 +83,6 @@ export default function UploadPage() {
       }
 
       setUploadedCID(cid);
-      notification.success(`File uploaded to IPFS: ${cid}`);
 
       // Step 4: Encrypt the key with ZAMA and store on blockchain
       const success = await storage.storeFile(cid, key);
@@ -158,7 +155,7 @@ export default function UploadPage() {
     <main className="section-padding">
       <div className="container-minimal max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="mb-12">
           <h1 className="mb-4">Upload File</h1>
           <p className="text-muted">
             Encrypt and upload files to IPFS with FHE-protected decryption keys
@@ -166,7 +163,7 @@ export default function UploadPage() {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex justify-center gap-3 mb-10">
+        <div className="flex gap-3 mb-10">
           <Link 
             href="/upload" 
             className="btn-primary flex items-center gap-2"

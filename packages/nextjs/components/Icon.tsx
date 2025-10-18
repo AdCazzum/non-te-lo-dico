@@ -11,6 +11,22 @@ interface IconProps {
  * All icons are from Font Awesome Free Solid set
  */
 export const Icon: React.FC<IconProps> = ({ name, size = 18, className = "" }) => {
+  // Special case for loading spinner
+  if (name === "loading") {
+    return (
+      <div 
+        className={`rounded-full animate-spin ${className}`}
+        style={{ 
+          width: `${size}px`, 
+          height: `${size}px`,
+          border: `${Math.max(2, size / 7)}px solid transparent`,
+          borderTopColor: 'currentColor',
+        }}
+        aria-hidden="true"
+      />
+    );
+  }
+
   // Map icon names to Font Awesome classes
   const iconMap: Record<string, string> = {
     upload: "fa-solid fa-upload",
@@ -24,7 +40,6 @@ export const Icon: React.FC<IconProps> = ({ name, size = 18, className = "" }) =
     x: "fa-solid fa-xmark",
     alert: "fa-solid fa-triangle-exclamation",
     info: "fa-solid fa-circle-info",
-    loading: "fa-solid fa-spinner fa-spin",
     copy: "fa-solid fa-copy",
     key: "fa-solid fa-key",
     shield: "fa-solid fa-shield-halved",

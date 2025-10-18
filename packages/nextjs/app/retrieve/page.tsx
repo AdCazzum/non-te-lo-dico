@@ -300,7 +300,7 @@ export default function RetrievePage() {
     <main className="section-padding">
       <div className="container-minimal max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="mb-12">
           <h1 className="mb-4">Retrieve File</h1>
           <p className="text-muted">
             Access and decrypt files shared with you
@@ -308,7 +308,7 @@ export default function RetrievePage() {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex justify-center gap-3 mb-10">
+        <div className="flex gap-3 mb-10">
           <Link 
             href="/upload" 
             className="btn-outline flex items-center gap-2"

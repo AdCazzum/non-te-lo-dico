@@ -67,12 +67,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 500;
 }
 
 h2 {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 500;
 }
 
@@ -304,11 +304,11 @@ a.card:focus {
 /* Responsive text sizes */
 @media (min-width: 768px) {
   h1 {
-    font-size: 3rem;
+    font-size: 2.25rem;
   }
   
   h2 {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   
   h3 {
@@ -328,11 +328,11 @@ a.card:focus {
 
 @media (min-width: 1024px) {
   h1 {
-    font-size: 3.75rem;
+    font-size: 2.5rem;
   }
   
   h2 {
-    font-size: 3rem;
+    font-size: 2.25rem;
   }
   
   .section-padding {

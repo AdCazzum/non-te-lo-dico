@@ -113,8 +113,6 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
           args: [cid, encryptedHandle, inputProof],
         });
 
-        notification.info("Transaction submitted. Waiting for confirmation...");
-        
         // Wait for transaction
         if (publicClient) {
           await publicClient.waitForTransactionReceipt({ hash });
@@ -148,8 +146,6 @@ export function useFHEIPFSStorage(fhevmInstance: FhevmInstance | undefined) {
           args: [cid, granteeAddress as `0x${string}`],
         });
 
-        notification.info("Granting access...");
-        
         if (publicClient) {
           await publicClient.waitForTransactionReceipt({ hash });
         }
